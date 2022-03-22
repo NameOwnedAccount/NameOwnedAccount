@@ -23,6 +23,14 @@ const config = {
             key: process.env.POLY_SCAN_KEY,
         },
     },
+    gnosisSafe: {
+        api: {
+            matic: 'https://safe-transaction.polygon.gnosis.io/',
+        },
+        admin: {
+            matic: '0x75EbA51F874a186E1800Fe24eC0E824E2bb44bB9',
+        }
+    },
     enableGasReporter: true
 };
 

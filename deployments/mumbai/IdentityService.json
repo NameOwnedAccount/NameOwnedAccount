@@ -1,0 +1,158 @@
+{
+  "address": "0xc01F07dEf39E90C37D7765376E0A28F371266B23",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "authenticator",
+          "type": "address"
+        }
+      ],
+      "name": "AuthKeyUpdate",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "authKey",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "authenticate",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "newAuthKey",
+          "type": "address"
+        }
+      ],
+      "name": "setAuthKey",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x31567330aeda8ae8157d7f661504aaaac06be5d7649df6238bdc804045779da5",
+  "receipt": {
+    "to": null,
+    "from": "0xa4b368e3a9D49Ff15b58f70Fb976724A98B6D149",
+    "contractAddress": "0xc01F07dEf39E90C37D7765376E0A28F371266B23",
+    "transactionIndex": 12,
+    "gasUsed": "196681",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008001000000000000000000000000000000000000000002000000000000800000000000000000000100000000004000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000080000000000000000000200000000000000000000000001000000000000000000000000000000000004000000000000000000001000000000000000000000000000000100040000000000000000000000000000000000000000000000000000000000000000000100000",
+    "blockHash": "0xc5cb27bc8545789739f7552dae687de29f093703978698a339aa7f656d64c622",
+    "transactionHash": "0x31567330aeda8ae8157d7f661504aaaac06be5d7649df6238bdc804045779da5",
+    "logs": [
+      {
+        "transactionIndex": 12,
+        "blockNumber": 25614566,
+        "transactionHash": "0x31567330aeda8ae8157d7f661504aaaac06be5d7649df6238bdc804045779da5",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x000000000000000000000000a4b368e3a9d49ff15b58f70fb976724a98b6d149",
+          "0x000000000000000000000000be188d6641e8b680743a4815dfa0f6208038960f"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000000df99b469803700000000000000000000000000000000000000000000000000dab61198dbeb4d3000000000000000000000000000000000000000000000bce5d9f60cb66c5b5760000000000000000000000000000000000000000000000000d9d677e4726b163000000000000000000000000000000000000000000000bce5dad5a66ad5db8e6",
+        "logIndex": 128,
+        "blockHash": "0xc5cb27bc8545789739f7552dae687de29f093703978698a339aa7f656d64c622"
+      }
+    ],
+    "blockNumber": 25614566,
+    "cumulativeGasUsed": "3705329",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "e357845d8f6db2acd423a7f9b62ae31f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.4+commit.c7e474f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"authenticator\",\"type\":\"address\"}],\"name\":\"AuthKeyUpdate\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"}],\"name\":\"authKey\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"authenticate\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"newAuthKey\",\"type\":\"address\"}],\"name\":\"setAuthKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/IdentityService.sol\":\"IdentityService\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"},\"contracts/IIdentityService.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.4;\\npragma experimental ABIEncoderV2;\\n\\nimport './LibIdentity.sol';\\n\\ninterface IIdentityService {\\n    event AuthKeyUpdate(\\n        bytes32 indexed id,\\n        address indexed authenticator\\n    );\\n\\n    function authKey(bytes32 id) external view returns(address);\\n\\n    function authenticate(\\n        bytes32 id,\\n        address operator\\n    ) external view;\\n}\\n\",\"keccak256\":\"0x97d63abe6cf8984cbf53ab1f0487c34981c2aedbf0cb444df8037fd43c705d4a\",\"license\":\"MIT\"},\"contracts/IdentityService.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.4;\\npragma experimental ABIEncoderV2;\\n\\nimport \\\"@openzeppelin/contracts/utils/Context.sol\\\";\\n\\nimport './IIdentityService.sol';\\n\\ncontract IdentityService is Context, IIdentityService {\\n    using LibIdentity for address;\\n\\n    mapping(bytes32 => address) private _authKeys;\\n\\n    function authKey(bytes32 id) public override view returns(address) {\\n        return _authKeys[id];\\n    }\\n\\n    function authenticate(\\n        bytes32 id,\\n        address operator\\n    ) public override view {\\n        if (operator.encode() == id) {\\n            return;\\n        }\\n        address key = authKey(id);\\n        require(\\n            key == address(0) || key == operator,\\n            'IdentityService: operator not authorized'\\n        );\\n    }\\n\\n    function setAuthKey(bytes32 id, address newAuthKey) external {\\n        authenticate(id, _msgSender());\\n        _authKeys[id] = newAuthKey;\\n        emit AuthKeyUpdate(id, newAuthKey);\\n    }\\n}\\n\",\"keccak256\":\"0xbc77305bbe171e1929c5916e466cce7f5335a77ee8ccd0daeeead40600850417\",\"license\":\"MIT\"},\"contracts/LibIdentity.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.4;\\npragma experimental ABIEncoderV2;\\n\\nlibrary LibIdentity {\\n    function encode(address account) internal pure returns(bytes32) {\\n        return keccak256(abi.encode(account));\\n    }\\n}\\n\",\"keccak256\":\"0x29c89df2a7e63f4e840760bfe4c2ee39d27eda5199c7de5343495f64123d83bc\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610298806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c8063ad9a2fc614610046578063be98d55a1461006f578063ec42b0db14610084575b600080fd5b6100596100543660046101fc565b610097565b604051610066919061024e565b60405180910390f35b61008261007d366004610214565b6100b2565b005b610082610092366004610214565b610169565b6000908152602081905260409020546001600160a01b031690565b816100c5826001600160a01b03166101cc565b14156100cf575050565b60006100da83610097565b90506001600160a01b03811615806101035750816001600160a01b0316816001600160a01b0316145b6101645760405162461bcd60e51b815260206004820152602860248201527f4964656e74697479536572766963653a206f70657261746f72206e6f742061756044820152671d1a1bdc9a5e995960c21b606482015260840160405180910390fd5b505050565b61017382336100b2565b60008281526020819052604080822080546001600160a01b0319166001600160a01b0385169081179091559051909184917f54f39fc7b0e71d32cb7e22fbf6e7e749bb3c93497a20c7e1f3079699ab5dc2ac9190a35050565b6000816040516020016101df919061024e565b604051602081830303815290604052805190602001209050919050565b60006020828403121561020d578081fd5b5035919050565b60008060408385031215610226578081fd5b8235915060208301356001600160a01b0381168114610243578182fd5b809150509250929050565b6001600160a01b039190911681526020019056fea26469706673582212200a2e5cd19017319f211c71a0efdb32af4c449112f1e6fc45f4e4f461b00b63b764736f6c63430008040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c8063ad9a2fc614610046578063be98d55a1461006f578063ec42b0db14610084575b600080fd5b6100596100543660046101fc565b610097565b604051610066919061024e565b60405180910390f35b61008261007d366004610214565b6100b2565b005b610082610092366004610214565b610169565b6000908152602081905260409020546001600160a01b031690565b816100c5826001600160a01b03166101cc565b14156100cf575050565b60006100da83610097565b90506001600160a01b03811615806101035750816001600160a01b0316816001600160a01b0316145b6101645760405162461bcd60e51b815260206004820152602860248201527f4964656e74697479536572766963653a206f70657261746f72206e6f742061756044820152671d1a1bdc9a5e995960c21b606482015260840160405180910390fd5b505050565b61017382336100b2565b60008281526020819052604080822080546001600160a01b0319166001600160a01b0385169081179091559051909184917f54f39fc7b0e71d32cb7e22fbf6e7e749bb3c93497a20c7e1f3079699ab5dc2ac9190a35050565b6000816040516020016101df919061024e565b604051602081830303815290604052805190602001209050919050565b60006020828403121561020d578081fd5b5035919050565b60008060408385031215610226578081fd5b8235915060208301356001600160a01b0381168114610243578182fd5b809150509250929050565b6001600160a01b039190911681526020019056fea26469706673582212200a2e5cd19017319f211c71a0efdb32af4c449112f1e6fc45f4e4f461b00b63b764736f6c63430008040033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1213,
+        "contract": "contracts/IdentityService.sol:IdentityService",
+        "label": "_authKeys",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_bytes32,t_address)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      }
+    }
+  }
+}

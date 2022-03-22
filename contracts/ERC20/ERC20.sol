@@ -7,7 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-import "./LibIdentity.sol"; import "./IIdentityService.sol";
+import "../LibIdentity.sol";
+import "../IIdentityService.sol";
 
 contract ERC20 is Context, IERC20, IERC20Metadata {
     using LibIdentity for address;
@@ -15,7 +16,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     event Transfer(bytes32 indexed from, bytes32 indexed to, uint256 value);
     event Approval(bytes32 indexed owner, bytes32 indexed spender, uint256 value);
 
-    bytes32 constant private ADDRESS_ZERO = 0xbc36789e7a1e281436464229828f817d6612f7b477d66591ff96a9e064bcc98a;
+    bytes32 constant public ADDRESS_ZERO = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
     address immutable public identityService;
     mapping(bytes32 => uint256) private _balances;
     mapping(bytes32 => mapping(bytes32 => uint256)) private _allowances;
@@ -256,4 +257,3 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 amount
     ) internal virtual {}
 }
-

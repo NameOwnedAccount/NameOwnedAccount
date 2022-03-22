@@ -7,7 +7,7 @@ require('hardhat-deploy-ethers');
 require('@openzeppelin/hardhat-upgrades');
 
 task('accounts', 'Prints the list of accounts')
-    .setAction(async (taskArgs, { ethers }) => {
+    .setAction(async (_args, { ethers }) => {
         const signers = await ethers.getNamedSigners();
         for (const name of Object.keys(signers)) {
           formatted = (name + ": ").padEnd(15, " ");
@@ -24,6 +24,19 @@ task('abi', 'Prints abi of contract')
             console.log(JSON.stringify(artifact.abi));
         }
         return artifact.abi;
+    });
+
+task('id', 'get bytes32 id of abitrary string')
+    .addParam('id', 'user id to encode')
+    .addFlag('print', 'print abi')
+    .setAction(async (args, { ethers }) => {
+        const id = ethers.utils.keccak256(
+            ethers.utils.defaultAbiCoder.encode(["string"], [args.id])
+        )
+        if (args.print) {
+            console.log(JSON.stringify({source: args.id, encoded: id}));
+        }
+        return id;
     });
 
 const config = require('./config');

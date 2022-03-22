@@ -3,16 +3,11 @@
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 
 import './IIdentityService.sol';
 
-contract IdentityService is
-    IIdentityService,
-    UUPSUpgradeable,
-    OwnableUpgradeable
-{
+contract IdentityService is Context, IIdentityService {
     using LibIdentity for address;
 
     mapping(bytes32 => address) private _authKeys;
@@ -40,8 +35,4 @@ contract IdentityService is
         _authKeys[id] = newAuthKey;
         emit AuthKeyUpdate(id, newAuthKey);
     }
-
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
 }
