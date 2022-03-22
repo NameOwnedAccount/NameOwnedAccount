@@ -103,8 +103,7 @@ contract ERC20 is IERC20 {
         address to,
         uint256 amount
     ) public virtual override returns (bool) {
-        _authenticate(from, _msgSender(), data);
-        _transfer(from, to, amount);
+        _transfer(_msgSender(), to, amount);
         return true;
     }
 
