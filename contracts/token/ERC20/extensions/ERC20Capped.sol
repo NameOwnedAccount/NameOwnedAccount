@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC20.sol";
+import "../ERC20.sol";
 
 abstract contract ERC20Capped is ERC20 {
     uint256 private immutable _cap;

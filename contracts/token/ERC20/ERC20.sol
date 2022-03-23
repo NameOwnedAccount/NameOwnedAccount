@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-import "../LibIdentity.sol";
-import "../IIdentityService.sol";
+import "../../identity/LibIdentity.sol";
+import "../../identity/IIdentityService.sol";
 
 contract ERC20 is Context, IERC20, IERC20Metadata {
     using LibIdentity for address;
