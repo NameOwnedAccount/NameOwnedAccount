@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 import "../../identity/LibIdentity.sol";
-import "../../identity/IIdentityService.sol";
+import "../../identity/IUniversalNameService.sol";
 
 contract ERC20 is Context, IERC20, IERC20Metadata {
     using LibIdentity for address;
@@ -17,7 +17,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     event Approval(bytes32 indexed owner, bytes32 indexed spender, uint256 value);
 
     bytes32 constant public ADDRESS_ZERO = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
-    IIdentityService immutable public identityService;
+    IUniversalNameService immutable private _nameService;
     mapping(bytes32 => uint256) private _balances;
     mapping(bytes32 => mapping(bytes32 => uint256)) private _allowances;
 
@@ -27,7 +27,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     modifier onlyAuthenticated(bytes32 id) {
         require(
-            identityService.authenticate(id, _msgSender()),
+            _nameService.authenticate(id, _msgSender()),
             'ERC20: unauthorized operator'
         );
         _;
@@ -36,11 +36,15 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     constructor(
         string memory name_,
         string memory symbol_,
-        address identityService_
+        address nameService_
     ) {
         _name = name_;
         _symbol = symbol_;
-        identityService = IIdentityService(identityService_);
+        _nameService = IUniversalNameService(nameService_);
+    }
+
+    function nameService() public view virtual returns(IUniversalNameService) {
+        return _nameService;
     }
 
     function name() public view virtual override returns (string memory) {

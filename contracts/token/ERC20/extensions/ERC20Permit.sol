@@ -60,7 +60,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         bytes32 hash = _hashTypedDataV4(structHash);
         address signer = ECDSA.recover(hash, v, r, s);
 
-        address authKey = IIdentityService(identityService).owner(owner);
+        address authKey = nameService().owner(owner);
         require(signer == authKey, "ERC20Permit: invalid signature");
         _approve(owner, spender, value);
     }

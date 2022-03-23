@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import './LibIdentity.sol';
 
-interface IIdentityService {
+interface IUniversalNameService {
     struct Identity {
         string name;
         address owner;
@@ -17,9 +17,19 @@ interface IIdentityService {
         string name
     );
 
-    event AuthKeyUpdate(
+    event SetOwner(
         bytes32 indexed id,
         address indexed authenticator
+    );
+
+    event UnsetReverse(
+        address indexed operator,
+        bytes32 indexed id
+    );
+
+    event SetReverse(
+        address indexed operator,
+        bytes32 indexed id
     );
 
     function authenticate(
@@ -30,4 +40,6 @@ interface IIdentityService {
     function name(bytes32 id) external view returns(string memory);
 
     function owner(bytes32 id) external view returns(address);
+
+    function reverse(address owner_) external view returns(bytes32);
 }
