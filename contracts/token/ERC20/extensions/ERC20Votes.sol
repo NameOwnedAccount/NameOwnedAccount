@@ -99,8 +99,8 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
 
-        address authKey = IIdentityService(identityService).authKey(delegator);
-        require(signer == authKey, "ERC20Votes: invalid signature");
+        address owner = IIdentityService(identityService).owner(delegator);
+        require(signer == owner, "ERC20Votes: invalid signature");
         _delegate(delegator, delegatee);
     }
 

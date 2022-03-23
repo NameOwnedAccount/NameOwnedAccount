@@ -6,10 +6,15 @@ pragma experimental ABIEncoderV2;
 import './LibIdentity.sol';
 
 interface IIdentityService {
+    struct Identity {
+        string name;
+        address owner;
+    }
+
     event Register(
         bytes32 indexed id,
-        address indexed authKey,
-        string username
+        address indexed owner,
+        string name
     );
 
     event AuthKeyUpdate(
@@ -22,7 +27,7 @@ interface IIdentityService {
         address operator
     ) external view returns(bool);
 
-    function username(bytes32 id) external view returns(string memory);
+    function name(bytes32 id) external view returns(string memory);
 
-    function authKey(bytes32 id) external view returns(address);
+    function owner(bytes32 id) external view returns(address);
 }

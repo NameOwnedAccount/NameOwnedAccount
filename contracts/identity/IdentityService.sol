@@ -10,32 +10,27 @@ import './IIdentityService.sol';
 contract IdentityService is Context, IIdentityService {
     using LibIdentity for address;
 
-    struct Identity {
-        string username;
-        address authKey;
-    }
-
     mapping(bytes32 => Identity) private _identities;
 
     function register(
-        string memory username_,
-        address authKey_
+        string memory name_,
+        address owner_
     ) external {
-        bytes32 id = keccak256(abi.encode(username_));
+        bytes32 id = keccak256(abi.encode(name_));
         require(
-            authKey(id) == address(0),
+            owner(id) == address(0),
             'IdentityService: already registered'
         );
-        _identities[id] = Identity(username_, authKey_);
-        emit Register(id, authKey_, username_);
+        _identities[id] = Identity(name_, owner_);
+        emit Register(id, owner_, name_);
     }
 
     function updateAuthKey(bytes32 id, address newAuthKey) external {
         require(
-            authKey(id) == _msgSender(),
+            owner(id) == _msgSender(),
             'IdentityService: not authorized'
         );
-        _identities[id].authKey = newAuthKey;
+        _identities[id].owner = newAuthKey;
         emit AuthKeyUpdate(id, newAuthKey);
     }
 
@@ -43,14 +38,14 @@ contract IdentityService is Context, IIdentityService {
         bytes32 id,
         address operator
     ) external override view returns(bool) {
-        return operator.encode() == id || authKey(id) == operator;
+        return operator.encode() == id || owner(id) == operator;
     }
 
-    function username(bytes32 id) public override view returns(string memory) {
-        return _identities[id].username;
+    function name(bytes32 id) public override view returns(string memory) {
+        return _identities[id].name;
     }
 
-    function authKey(bytes32 id) public override view returns(address) {
-        return _identities[id].authKey;
+    function owner(bytes32 id) public override view returns(address) {
+        return _identities[id].owner;
     }
 }
