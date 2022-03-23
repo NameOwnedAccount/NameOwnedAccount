@@ -33,7 +33,7 @@ contract UniversalNameService is Context, IUniversalNameService {
             'IdentityService: not authorized'
         );
         _identities[id].owner = newOwner;
-        emit SetOwner(id, newOwner);
+        emit SetOwner(id, operator, newOwner);
     }
 
     function authenticate(

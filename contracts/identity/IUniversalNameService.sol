@@ -17,7 +17,8 @@ interface IUniversalNameService {
 
     event SetOwner(
         bytes32 indexed id,
-        address indexed authenticator
+        address indexed oldOwner,
+        address indexed newOwner
     );
 
     function authenticate(
