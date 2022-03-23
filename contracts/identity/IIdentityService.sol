@@ -17,7 +17,10 @@ interface IIdentityService {
         address indexed authenticator
     );
 
-    function authenticate(bytes32 id, address operator) external view;
+    function authenticate(
+        bytes32 id,
+        address operator
+    ) external view returns(bool);
 
     function username(bytes32 id) external view returns(string memory);
 

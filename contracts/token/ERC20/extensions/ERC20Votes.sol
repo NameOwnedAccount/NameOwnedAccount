@@ -74,8 +74,10 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         return high == 0 ? 0 : ckpts[high - 1].votes;
     }
 
-    function delegate(bytes32 delegator, bytes32 delegatee) public virtual override {
-        IIdentityService(identityService).authenticate(delegator, _msgSender());
+    function delegate(
+        bytes32 delegator,
+        bytes32 delegatee
+    ) public virtual override onlyAuthenticated(delegator) {
         _delegate(delegator, delegatee);
     }
 

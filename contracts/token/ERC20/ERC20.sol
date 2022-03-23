@@ -17,13 +17,21 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     event Approval(bytes32 indexed owner, bytes32 indexed spender, uint256 value);
 
     bytes32 constant public ADDRESS_ZERO = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
-    address immutable public identityService;
+    IIdentityService immutable public identityService;
     mapping(bytes32 => uint256) private _balances;
     mapping(bytes32 => mapping(bytes32 => uint256)) private _allowances;
 
     uint256 private _totalSupply;
     string private _name;
     string private _symbol;
+
+    modifier onlyAuthenticated(bytes32 id) {
+        require(
+            identityService.authenticate(id, _msgSender()),
+            'ERC20: unauthorized operator'
+        );
+        _;
+    }
 
     constructor(
         string memory name_,
@@ -32,7 +40,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     ) {
         _name = name_;
         _symbol = symbol_;
-        identityService = identityService_;
+        identityService = IIdentityService(identityService_);
     }
 
     function name() public view virtual override returns (string memory) {
@@ -77,9 +85,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 from,
         bytes32 to,
         uint256 amount
-    ) public virtual returns (bool) {
-        address operator = _msgSender();
-        IIdentityService(identityService).authenticate(from, operator);
+    ) public virtual onlyAuthenticated(from) returns (bool) {
         _transfer(from, to, amount);
         return true;
     }
@@ -100,8 +106,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 from,
         bytes32 to,
         uint256 amount
-    ) public virtual returns (bool) {
-        IIdentityService(identityService).authenticate(delegator, _msgSender());
+    ) public virtual onlyAuthenticated(delegator) returns (bool) {
         _spendAllowance(from, delegator, amount);
         _transfer(from, to, amount);
         return true;
@@ -117,8 +122,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 owner,
         bytes32 spender,
         uint256 amount
-    ) public virtual returns (bool) {
-        IIdentityService(identityService).authenticate(owner, _msgSender());
+    ) public virtual onlyAuthenticated(owner) returns (bool) {
         _approve(owner, spender, amount);
         return true;
     }
@@ -135,8 +139,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 owner,
         bytes32 spender,
         uint256 addedValue
-    ) public virtual returns (bool) {
-        IIdentityService(identityService).authenticate(owner, _msgSender());
+    ) public virtual onlyAuthenticated(owner) returns (bool) {
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
     }
@@ -160,8 +163,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 owner,
         bytes32 spender,
         uint256 subtractedValue
-    ) public virtual returns (bool) {
-        IIdentityService(identityService).authenticate(owner, _msgSender());
+    ) public virtual onlyAuthenticated(owner) returns (bool) {
         uint256 currentAllowance = allowance(owner, spender);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {

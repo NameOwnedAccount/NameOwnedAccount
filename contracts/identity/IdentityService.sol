@@ -31,7 +31,10 @@ contract IdentityService is Context, IIdentityService {
     }
 
     function updateAuthKey(bytes32 id, address newAuthKey) external {
-        authenticate(id, _msgSender());
+        require(
+            authKey(id) == _msgSender(),
+            'IdentityService: not authorized'
+        );
         _identities[id].authKey = newAuthKey;
         emit AuthKeyUpdate(id, newAuthKey);
     }
@@ -39,14 +42,8 @@ contract IdentityService is Context, IIdentityService {
     function authenticate(
         bytes32 id,
         address operator
-    ) public override view {
-        if (operator.encode() == id) {
-            return;
-        }
-        require(
-            authKey(id) == operator,
-            'IdentityService: operator not authorized'
-        );
+    ) external override view returns(bool) {
+        return operator.encode() == id || authKey(id) == operator;
     }
 
     function username(bytes32 id) public override view returns(string memory) {
