@@ -10,11 +10,10 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "../../identity/LibIdentity.sol";
 import "../../identity/IUniversalNameService.sol";
 
-contract ERC20 is Context, IERC20, IERC20Metadata {
-    using LibIdentity for address;
+import "./IERC20Universal.sol";
 
-    event Transfer(bytes32 indexed from, bytes32 indexed to, uint256 value);
-    event Approval(bytes32 indexed owner, bytes32 indexed spender, uint256 value);
+contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
+    using LibIdentity for address;
 
     bytes32 constant public ADDRESS_ZERO = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
     IUniversalNameService immutable private _nameService;
@@ -59,11 +58,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return 18;
     }
 
-    function totalSupply() public view virtual override returns (uint256) {
+    function totalSupply()
+        public
+        view
+        virtual
+        override(IERC20, IERC20Universal)
+        returns (uint256)
+    {
         return _totalSupply;
     }
 
-    function balanceOf(bytes32 account) public view virtual returns (uint256) {
+    function balanceOf(bytes32 account) public view virtual override returns (uint256) {
         return _balances[account];
     }
 
@@ -71,7 +76,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return _balances[account.encode()];
     }
 
-    function allowance(bytes32 owner, bytes32 spender) public view virtual returns (uint256) {
+    function allowance(bytes32 owner, bytes32 spender) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -82,6 +87,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
         _transfer(owner.encode(), to.encode(), amount);
+        emit Transfer(owner, to, amount);
         return true;
     }
 
@@ -89,7 +95,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 from,
         bytes32 to,
         uint256 amount
-    ) public virtual onlyAuthenticated(from) returns (bool) {
+    ) public virtual override onlyAuthenticated(from) returns (bool) {
         _transfer(from, to, amount);
         return true;
     }
@@ -102,16 +108,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address operator = _msgSender();
         _spendAllowance(from.encode(), operator.encode(), amount);
         _transfer(from.encode(), to.encode(), amount);
+        emit Transfer(from, to, amount);
         return true;
     }
 
     function transferFrom(
-        bytes32 delegator,
+        bytes32 operator,
         bytes32 from,
         bytes32 to,
         uint256 amount
-    ) public virtual onlyAuthenticated(delegator) returns (bool) {
-        _spendAllowance(from, delegator, amount);
+    ) public virtual override onlyAuthenticated(operator) returns (bool) {
+        _spendAllowance(from, operator, amount);
         _transfer(from, to, amount);
         return true;
     }
@@ -119,6 +126,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
         address operator = _msgSender();
         _approve(operator.encode(), spender.encode(), amount);
+        emit Approval(operator, spender, amount);
         return true;
     }
 
@@ -126,16 +134,18 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         bytes32 owner,
         bytes32 spender,
         uint256 amount
-    ) public virtual onlyAuthenticated(owner) returns (bool) {
+    ) public virtual override onlyAuthenticated(owner) returns (bool) {
         _approve(owner, spender, amount);
         return true;
     }
 
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        address sender = _msgSender();
-        bytes32 owner = sender.encode();
-        bytes32 spenderAsId = spender.encode();
-        _approve(owner, spenderAsId, allowance(owner, spenderAsId) + addedValue);
+        address owner = _msgSender();
+        bytes32 ownerId = owner.encode();
+        bytes32 spenderId = spender.encode();
+        uint256 amount = allowance(ownerId, spenderId) + addedValue;
+        _approve(ownerId, spenderId, amount);
+        emit Approval(owner, spender, amount);
         return true;
     }
 
@@ -149,16 +159,18 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        address sender = _msgSender();
-        bytes32 owner = sender.encode();
+        address owner = _msgSender();
+        bytes32 ownerId = owner.encode();
         bytes32 spenderId = spender.encode();
-        uint256 currentAllowance = allowance(owner, spenderId);
+        uint256 currentAllowance = allowance(ownerId, spenderId);
         require(
             currentAllowance >= subtractedValue,
             "ERC20: decreased allowance below zero"
         );
         unchecked {
-            _approve(owner, spenderId, currentAllowance - subtractedValue);
+            uint256 amount = currentAllowance - subtractedValue;
+            _approve(ownerId, spenderId, amount);
+            emit Approval(owner, spender, amount);
         }
         return true;
     }

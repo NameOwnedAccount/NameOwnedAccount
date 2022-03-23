@@ -8,9 +8,10 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+import "./IERC20PermitUniversal.sol";
 import "../ERC20.sol";
 
-abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
+abstract contract ERC20Permit is ERC20, IERC20Permit, IERC20PermitUniversal, EIP712 {
     using LibIdentity for address;
     using Counters for Counters.Counter;
 
@@ -52,7 +53,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public virtual override {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
         bytes32 structHash = keccak256(
             abi.encode(_PERMIT_EXTENDED_TYPEHASH, owner, spender, value, _useNonce(owner), deadline)
@@ -69,11 +70,16 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         return nonces(owner.encode());
     }
 
-    function nonces(bytes32 owner) public view virtual returns (uint256) {
+    function nonces(bytes32 owner) public view virtual override returns (uint256) {
         return _nonces[owner].current();
     }
 
-    function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+    function DOMAIN_SEPARATOR()
+        external
+        view
+        override(IERC20Permit, IERC20PermitUniversal)
+        returns (bytes32)
+    {
         return _domainSeparatorV4();
     }
 

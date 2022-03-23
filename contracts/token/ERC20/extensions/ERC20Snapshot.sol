@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/ERC20Snapshot.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.4;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/Arrays.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";

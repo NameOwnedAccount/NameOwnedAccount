@@ -3,7 +3,7 @@
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
-interface IVotes {
+interface IVotesUniversal {
     function getVotes(bytes32 account) external view returns (uint256);
 
     function getPastVotes(bytes32 account, uint256 blockNumber) external view returns (uint256);
