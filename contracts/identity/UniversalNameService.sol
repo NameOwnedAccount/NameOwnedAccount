@@ -5,18 +5,15 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 
+import './LibIdentity.sol';
 import './IUniversalNameService.sol';
 
 contract UniversalNameService is Context, IUniversalNameService {
     using LibIdentity for address;
 
     mapping(bytes32 => Identity) private _identities;
-    mapping(address => bytes32) private _reverse;
 
-    function register(
-        string memory name_,
-        address owner_
-    ) external {
+    function register(string memory name_, address owner_) external {
         bytes32 id = keccak256(abi.encode(name_));
         require(
             owner(id) == address(0),
@@ -35,22 +32,8 @@ contract UniversalNameService is Context, IUniversalNameService {
             owner(id) == operator,
             'IdentityService: not authorized'
         );
-        if (_reverse[operator] == id) {
-            delete _reverse[operator];
-            emit UnsetReverse(operator, id);
-        }
         _identities[id].owner = newOwner;
         emit SetOwner(id, newOwner);
-    }
-
-    function setReverse(bytes32 id) external {
-        address operator = _msgSender();
-        require(
-            owner(id) == operator,
-            'IdentityService: not authorized'
-        );
-        _reverse[operator] = id;
-        emit SetReverse(operator, id);
     }
 
     function authenticate(
@@ -66,9 +49,5 @@ contract UniversalNameService is Context, IUniversalNameService {
 
     function owner(bytes32 id) public override view returns(address) {
         return _identities[id].owner;
-    }
-
-    function reverse(address owner_) public override view returns(bytes32) {
-        return _reverse[owner_];
     }
 }
