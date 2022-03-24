@@ -3,14 +3,14 @@
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
-import "../IERC20Universal.sol";
+import "../IERC20V2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 library SafeERC20Universal {
     using Address for address;
 
     function safeTransfer(
-        IERC20Universal token,
+        IERC20V2 token,
         bytes32 from,
         bytes32 to,
         uint256 value
@@ -19,7 +19,7 @@ library SafeERC20Universal {
     }
 
     function safeTransferFrom(
-        IERC20Universal token,
+        IERC20V2 token,
         bytes32 operator,
         bytes32 from,
         bytes32 to,
@@ -29,7 +29,7 @@ library SafeERC20Universal {
     }
 
     function safeIncreaseAllowance(
-        IERC20Universal token,
+        IERC20V2 token,
         bytes32 owner,
         bytes32 spender,
         uint256 value
@@ -39,7 +39,7 @@ library SafeERC20Universal {
     }
 
     function safeDecreaseAllowance(
-        IERC20Universal token,
+        IERC20V2 token,
         bytes32 owner,
         bytes32 spender,
         uint256 value
@@ -52,7 +52,7 @@ library SafeERC20Universal {
         }
     }
 
-    function _callOptionalReturn(IERC20Universal token, bytes memory data) private {
+    function _callOptionalReturn(IERC20V2 token, bytes memory data) private {
         bytes memory returndata = address(token).functionCall(data, "SafeERC20Universal: low-level call failed");
         if (returndata.length > 0) {
             require(abi.decode(returndata, (bool)), "SafeERC20Universal: ERC20 operation did not succeed");

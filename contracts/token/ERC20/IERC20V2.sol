@@ -3,7 +3,7 @@
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
-interface IERC20Universal {
+interface IERC20V2 {
     function totalSupply() external view returns (uint256);
 
     function balanceOf(bytes32 account) external view returns (uint256);

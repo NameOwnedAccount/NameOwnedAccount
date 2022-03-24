@@ -4,7 +4,7 @@ const assert = require('assert');
 module.exports = async ({ ethers, deployments, localConfig } = hre) => {
     const owner = await admin(hre);
     const identityService = await hre.deployments.getOrNull(
-        'IdentityService'
+        'UniversalNameService'
     );
     assert(identityService !== undefined);
 
@@ -28,4 +28,4 @@ module.exports = async ({ ethers, deployments, localConfig } = hre) => {
     }
 };
 
-module.exports.tags = ['ERC20'];
+module.exports.tags = ['Bridge23'];

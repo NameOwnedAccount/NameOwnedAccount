@@ -3,7 +3,7 @@
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
-interface IERC20PermitUniversal {
+interface IERC20PermitV2 {
     function permit(
         bytes32 owner,
         bytes32 spender,

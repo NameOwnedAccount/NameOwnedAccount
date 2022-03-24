@@ -7,15 +7,11 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts/governance/utils/IVotes.sol"; import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import "../../../governance/utils/IVotesUniversal.sol";
+import "../../../governance/utils/IVotesV2.sol";
 import './ERC20Permit.sol';
 
-abstract contract ERC20Votes is IVotes, IVotesUniversal, ERC20Permit {
+abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
     using LibIdentity for address;
-
-    event DelegateChanged(bytes32 indexed delegator, bytes32 indexed fromDelegate, bytes32 indexed toDelegate);
-
-    event DelegateVotesChanged(bytes32 indexed delegate, uint256 previousBalance, uint256 newBalance);
 
     struct Checkpoint {
         uint32 fromBlock;
@@ -69,7 +65,7 @@ abstract contract ERC20Votes is IVotes, IVotesUniversal, ERC20Permit {
 
     function getPastTotalSupply(
         uint256 blockNumber
-    ) public view virtual override(IVotes, IVotesUniversal) returns (uint256) {
+    ) public view virtual override(IVotes, IVotesV2) returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }

@@ -10,9 +10,9 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "../../identity/LibIdentity.sol";
 import "../../identity/IUniversalNameService.sol";
 
-import "./IERC20Universal.sol";
+import "./IERC20V2.sol";
 
-contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
+contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
     using LibIdentity for address;
 
     bytes32 constant public ADDRESS_ZERO = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
@@ -62,7 +62,7 @@ contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
         public
         view
         virtual
-        override(IERC20, IERC20Universal)
+        override(IERC20, IERC20V2)
         returns (uint256)
     {
         return _totalSupply;
@@ -87,7 +87,6 @@ contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
         _transfer(owner.encode(), to.encode(), amount);
-        emit Transfer(owner, to, amount);
         return true;
     }
 
@@ -108,7 +107,6 @@ contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
         address operator = _msgSender();
         _spendAllowance(from.encode(), operator.encode(), amount);
         _transfer(from.encode(), to.encode(), amount);
-        emit Transfer(from, to, amount);
         return true;
     }
 
@@ -126,7 +124,6 @@ contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
         address operator = _msgSender();
         _approve(operator.encode(), spender.encode(), amount);
-        emit Approval(operator, spender, amount);
         return true;
     }
 
@@ -145,7 +142,6 @@ contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
         bytes32 spenderId = spender.encode();
         uint256 amount = allowance(ownerId, spenderId) + addedValue;
         _approve(ownerId, spenderId, amount);
-        emit Approval(owner, spender, amount);
         return true;
     }
 
@@ -168,9 +164,7 @@ contract ERC20 is Context, IERC20, IERC20Universal, IERC20Metadata {
             "ERC20: decreased allowance below zero"
         );
         unchecked {
-            uint256 amount = currentAllowance - subtractedValue;
-            _approve(ownerId, spenderId, amount);
-            emit Approval(owner, spender, amount);
+            _approve(ownerId, spenderId, currentAllowance - subtractedValue);
         }
         return true;
     }

@@ -8,10 +8,10 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./IERC20PermitUniversal.sol";
+import "./IERC20PermitV2.sol";
 import "../ERC20.sol";
 
-abstract contract ERC20Permit is ERC20, IERC20Permit, IERC20PermitUniversal, EIP712 {
+abstract contract ERC20Permit is ERC20, IERC20Permit, IERC20PermitV2, EIP712 {
     using LibIdentity for address;
     using Counters for Counters.Counter;
 
@@ -77,7 +77,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, IERC20PermitUniversal, EIP
     function DOMAIN_SEPARATOR()
         external
         view
-        override(IERC20Permit, IERC20PermitUniversal)
+        override(IERC20Permit, IERC20PermitV2)
         returns (bytes32)
     {
         return _domainSeparatorV4();
