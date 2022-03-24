@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
-import TheWelcome from "./components/TheWelcome.vue";
+import GreetingHeader from "./components/GreetingHeader.vue";
 </script>
 
 <template>
   <header>
     <img
-      alt="Vue logo"
+      alt="Bridge23 logo"
       class="logo"
       src="./assets/logo.png"
       width="125"
@@ -14,13 +13,11 @@ import TheWelcome from "./components/TheWelcome.vue";
     />
 
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <GreetingHeader />
     </div>
   </header>
 
-  <main>
-    <TheWelcome />
-  </main>
+  <main></main>
 </template>
 
 <style>
