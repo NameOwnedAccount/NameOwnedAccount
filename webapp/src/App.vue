@@ -5,7 +5,7 @@ import GreetingHeader from "./components/GreetingHeader.vue";
 <template>
   <header>
     <img
-      alt="Bridge23 logo"
+      alt="B23 logo"
       class="logo"
       src="./assets/logo.png"
       width="125"

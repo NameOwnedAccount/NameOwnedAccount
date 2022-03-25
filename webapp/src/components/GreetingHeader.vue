@@ -2,7 +2,7 @@
 
 <template>
   <div class="greetings">
-    <h1 class="green">BRIDGE 23</h1>
+    <h1 class="green">B23</h1>
     <h3>Between Web2 and Web3</h3>
   </div>
 </template>
