@@ -19,6 +19,12 @@ contract UniversalNameService is Context, IUniversalNameService {
             owner(id) == bytes32(0),
             'IdentityService: already registered'
         );
+
+        address operator = _msgSender();
+        require(
+            authenticate(owner_, operator.encode()),
+            'IdentityService: not authorized'
+        );
         _identities[id] = Identity(name_, owner_);
         emit Register(id, owner_, name_);
     }
@@ -34,6 +40,7 @@ contract UniversalNameService is Context, IUniversalNameService {
             'IdentityService: not authorized'
         );
         _identities[id].owner = newOwner;
+        _checkCircularDependency(newOwner, id);
         emit SetOwner(id, oldOwner, newOwner);
     }
 
@@ -52,5 +59,14 @@ contract UniversalNameService is Context, IUniversalNameService {
 
     function owner(bytes32 id) public override view returns(bytes32) {
         return _identities[id].owner;
+    }
+
+    function _checkCircularDependency(
+        bytes32 node,
+        bytes32 origin
+    ) private view {
+        require(node != origin, 'IdentityService: circular dependency');
+        if (node == bytes32(0)) { return; }
+        return _checkCircularDependency(owner(node), origin);
     }
 }
