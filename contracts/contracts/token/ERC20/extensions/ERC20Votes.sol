@@ -109,7 +109,7 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
 
     function _mint(bytes32 account, uint256 amount) internal virtual override {
         super._mint(account, amount);
-        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+        require(totalSupplyV2() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
 
         _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
     }
@@ -132,7 +132,7 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
 
     function _delegate(bytes32 delegator, bytes32 delegatee) internal virtual {
         bytes32 currentDelegate = delegates(delegator);
-        uint256 delegatorBalance = balanceOf(delegator);
+        uint256 delegatorBalance = balanceOfV2(delegator);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);

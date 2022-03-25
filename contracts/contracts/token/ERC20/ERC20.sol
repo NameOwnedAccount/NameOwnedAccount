@@ -58,25 +58,35 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         return 18;
     }
 
-    function totalSupply()
+    function totalSupplyV2()
         public
         view
         virtual
-        override(IERC20, IERC20V2)
+        override
         returns (uint256)
     {
         return _totalSupply;
     }
 
-    function balanceOf(bytes32 account) public view virtual override returns (uint256) {
+    function totalSupply()
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        return totalSupplyV2();
+    }
+
+    function balanceOfV2(bytes32 account) public view virtual override returns (uint256) {
         return _balances[account];
     }
 
     function balanceOf(address account) public view virtual override returns (uint256) {
-        return _balances[account.encode()];
+        return balanceOfV2(account.encode());
     }
 
-    function allowance(bytes32 owner, bytes32 spender) public view virtual override returns (uint256) {
+    function allowanceV2(bytes32 owner, bytes32 spender) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -90,7 +100,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         return true;
     }
 
-    function transfer(
+    function transferV2(
         bytes32 from,
         bytes32 to,
         uint256 amount
@@ -110,7 +120,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         return true;
     }
 
-    function transferFrom(
+    function transferFromV2(
         bytes32 operator,
         bytes32 from,
         bytes32 to,
@@ -127,7 +137,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         return true;
     }
 
-    function approve(
+    function approveV2(
         bytes32 owner,
         bytes32 spender,
         uint256 amount
@@ -140,17 +150,17 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         address owner = _msgSender();
         bytes32 ownerId = owner.encode();
         bytes32 spenderId = spender.encode();
-        uint256 amount = allowance(ownerId, spenderId) + addedValue;
+        uint256 amount = allowanceV2(ownerId, spenderId) + addedValue;
         _approve(ownerId, spenderId, amount);
         return true;
     }
 
-    function increaseAllowance(
+    function increaseAllowanceV2(
         bytes32 owner,
         bytes32 spender,
         uint256 addedValue
     ) public virtual onlyAuthenticated(owner) returns (bool) {
-        _approve(owner, spender, allowance(owner, spender) + addedValue);
+        _approve(owner, spender, allowanceV2(owner, spender) + addedValue);
         return true;
     }
 
@@ -158,7 +168,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         address owner = _msgSender();
         bytes32 ownerId = owner.encode();
         bytes32 spenderId = spender.encode();
-        uint256 currentAllowance = allowance(ownerId, spenderId);
+        uint256 currentAllowance = allowanceV2(ownerId, spenderId);
         require(
             currentAllowance >= subtractedValue,
             "ERC20: decreased allowance below zero"
@@ -169,12 +179,12 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         return true;
     }
 
-    function decreaseAllowance(
+    function decreaseAllowanceV2(
         bytes32 owner,
         bytes32 spender,
         uint256 subtractedValue
     ) public virtual onlyAuthenticated(owner) returns (bool) {
-        uint256 currentAllowance = allowance(owner, spender);
+        uint256 currentAllowance = allowanceV2(owner, spender);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);
@@ -187,7 +197,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         bytes32 spender,
         uint256 amount
     ) internal virtual {
-        uint256 currentAllowance = allowance(owner, spender);
+        uint256 currentAllowance = allowanceV2(owner, spender);
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: insufficient allowance");
             unchecked {
@@ -205,7 +215,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         require(spender != ADDRESS_ZERO, "ERC20: approve to the zero address");
 
         _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
+        emit ApprovalV2(owner, spender, amount);
     }
 
     function _transfer(
@@ -225,7 +235,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         }
         _balances[to] += amount;
 
-        emit Transfer(from, to, amount);
+        emit TransferV2(from, to, amount);
         _afterTokenTransfer(from, to, amount);
     }
 
@@ -235,7 +245,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
 
         _totalSupply += amount;
         _balances[account] += amount;
-        emit Transfer(ADDRESS_ZERO, account, amount);
+        emit TransferV2(ADDRESS_ZERO, account, amount);
 
         _afterTokenTransfer(ADDRESS_ZERO, account, amount);
     }
@@ -252,7 +262,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
         }
         _totalSupply -= amount;
 
-        emit Transfer(account, ADDRESS_ZERO, amount);
+        emit TransferV2(account, ADDRESS_ZERO, amount);
 
         _afterTokenTransfer(account, ADDRESS_ZERO, amount);
     }

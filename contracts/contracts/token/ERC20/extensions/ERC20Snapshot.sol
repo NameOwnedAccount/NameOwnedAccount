@@ -46,13 +46,13 @@ abstract contract ERC20Snapshot is ERC20 {
             snapshotId,
             _accountBalanceSnapshots[account]
         );
-        return snapshotted ? value : balanceOf(account);
+        return snapshotted ? value : balanceOfV2(account);
     }
 
     function totalSupplyAt(uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
 
-        return snapshotted ? value : totalSupply();
+        return snapshotted ? value : totalSupplyV2();
     }
 
     function _beforeTokenTransfer(
@@ -85,7 +85,7 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     function _updateAccountSnapshot(bytes32 account) private {
-        _updateSnapshot(_accountBalanceSnapshots[account], balanceOf(account));
+        _updateSnapshot(_accountBalanceSnapshots[account], balanceOfV2(account));
     }
 
     function _updateTotalSupplySnapshot() private {

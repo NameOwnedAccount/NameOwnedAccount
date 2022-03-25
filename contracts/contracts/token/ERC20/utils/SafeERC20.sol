@@ -15,7 +15,7 @@ library SafeERC20Universal {
         bytes32 to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, from, to, value));
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transferV2.selector, from, to, value));
     }
 
     function safeTransferFrom(
@@ -25,7 +25,7 @@ library SafeERC20Universal {
         bytes32 to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, operator, from, to, value));
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFromV2.selector, operator, from, to, value));
     }
 
     function safeIncreaseAllowance(
@@ -34,8 +34,8 @@ library SafeERC20Universal {
         bytes32 spender,
         uint256 value
     ) internal {
-        uint256 newAllowance = token.allowance(owner, spender) + value;
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, owner, spender, newAllowance));
+        uint256 newAllowance = token.allowanceV2(owner, spender) + value;
+        _callOptionalReturn(token, abi.encodeWithSelector(token.approveV2.selector, owner, spender, newAllowance));
     }
 
     function safeDecreaseAllowance(
@@ -45,10 +45,10 @@ library SafeERC20Universal {
         uint256 value
     ) internal {
         unchecked {
-            uint256 oldAllowance = token.allowance(owner, spender);
+            uint256 oldAllowance = token.allowanceV2(owner, spender);
             require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
             uint256 newAllowance = oldAllowance - value;
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, owner, spender, newAllowance));
+            _callOptionalReturn(token, abi.encodeWithSelector(token.approveV2.selector, owner, spender, newAllowance));
         }
     }
 
