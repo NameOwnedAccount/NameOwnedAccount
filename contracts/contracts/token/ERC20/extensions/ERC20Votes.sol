@@ -42,7 +42,7 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
 
     function delegates(address account) public view virtual override returns (address) {
         bytes32 id = delegates(account.encode());
-        return nameService().owner(id);
+        return IUniversalNameService(nameService()).owner(id);
     }
 
     function getVotes(bytes32 account) public view virtual override returns (uint256) {
@@ -117,7 +117,7 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
 
-        address owner = nameService().owner(delegator);
+        address owner = IUniversalNameService(nameService()).owner(delegator);
         require(signer == owner, "ERC20Votes: invalid signature");
         _delegate(delegator, delegatee);
     }

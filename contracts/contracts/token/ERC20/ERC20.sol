@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
@@ -16,7 +15,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
     using LibIdentity for address;
 
     bytes32 constant public ADDRESS_ZERO = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
-    IUniversalNameService immutable private _nameService;
+    address immutable private _nameService;
     mapping(bytes32 => uint256) private _balances;
     mapping(bytes32 => mapping(bytes32 => uint256)) private _allowances;
 
@@ -26,7 +25,7 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
 
     modifier onlyAuthenticated(bytes32 id) {
         require(
-            _nameService.authenticate(id, _msgSender()),
+            IUniversalNameService(nameService()).authenticate(id, _msgSender()),
             'ERC20: unauthorized operator'
         );
         _;
@@ -39,10 +38,10 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
     ) {
         _name = name_;
         _symbol = symbol_;
-        _nameService = IUniversalNameService(nameService_);
+        _nameService = nameService_;
     }
 
-    function nameService() public view virtual returns(IUniversalNameService) {
+    function nameService() public view virtual override returns(address) {
         return _nameService;
     }
 
