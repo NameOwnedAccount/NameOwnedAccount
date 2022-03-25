@@ -24,8 +24,9 @@ contract ERC20 is Context, IERC20, IERC20V2, IERC20Metadata {
     string private _symbol;
 
     modifier onlyAuthenticated(bytes32 id) {
+        address operator = _msgSender();
         require(
-            IUniversalNameService(nameService()).authenticate(id, _msgSender()),
+            IUniversalNameService(nameService()).authenticate(id, operator.encode()),
             'ERC20: unauthorized operator'
         );
         _;

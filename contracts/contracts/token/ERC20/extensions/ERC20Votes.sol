@@ -5,12 +5,12 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import "@openzeppelin/contracts/governance/utils/IVotes.sol"; import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import "../../../governance/utils/IVotesV2.sol";
 import './ERC20Permit.sol';
 
-abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
+abstract contract ERC20Votes is IVotesV2, ERC20Permit {
     using LibIdentity for address;
 
     struct Checkpoint {
@@ -25,6 +25,7 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
         keccak256("Delegation(bytes32 delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(bytes32 => bytes32) private _delegates;
+    mapping(address => address) private _delegatesLegacy;
     mapping(bytes32 => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
@@ -40,18 +41,9 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
         return _delegates[account];
     }
 
-    function delegates(address account) public view virtual override returns (address) {
-        bytes32 id = delegates(account.encode());
-        return IUniversalNameService(nameService()).owner(id);
-    }
-
     function getVotes(bytes32 account) public view virtual override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
-    }
-
-    function getVotes(address account) public view virtual override returns (uint256) {
-        return getVotes(account.encode());
     }
 
     function getPastVotes(bytes32 account, uint256 blockNumber) public view virtual override returns (uint256) {
@@ -59,13 +51,9 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
 
-    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return getPastVotes(account.encode(), blockNumber);
-    }
-
     function getPastTotalSupply(
         uint256 blockNumber
-    ) public view virtual override(IVotes, IVotesV2) returns (uint256) {
+    ) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
@@ -92,13 +80,6 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
         _delegate(delegator, delegatee);
     }
 
-    function delegate(
-        address delegatee
-    ) public virtual override {
-        address operator = _msgSender();
-        _delegate(operator.encode(), delegatee.encode());
-    }
-
     function delegateBySig(
         bytes32 delegator,
         bytes32 delegatee,
@@ -117,28 +98,9 @@ abstract contract ERC20Votes is IVotes, IVotesV2, ERC20Permit {
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
 
-        address owner = IUniversalNameService(nameService()).owner(delegator);
-        require(signer == owner, "ERC20Votes: invalid signature");
+        bytes32 owner = IUniversalNameService(nameService()).owner(delegator);
+        require(signer.encode() == owner, "ERC20Votes: invalid signature");
         _delegate(delegator, delegatee);
-    }
-
-    function delegateBySig(
-        address delegatee,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual override {
-        require(block.timestamp <= expiry, "ERC20Votes: signature expired");
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
-            v,
-            r,
-            s
-        );
-        require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
-        _delegate(signer.encode(), delegatee.encode());
     }
 
     function _maxSupply() internal view virtual returns (uint224) {
