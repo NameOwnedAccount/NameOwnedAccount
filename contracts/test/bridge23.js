@@ -84,25 +84,25 @@ describe("ERC20", function () {
     it("authentication", async function() {
         const name1 = hashString('b23');
         const name2 = hashString('b32');
-        await service.register('b23', hashedAdmin);
-        await service.register('b32', name1);
+        await service.setOwner('b23', hashedAdmin);
+        await service.setOwner('b32', name1);
 
         const amount = base.mul(1000).div(2);
         await expect(
             bridge23.connect(test).transferV2(name1, name2, amount)
-        ).to.be.revertedWith('ERC20: unauthorized operator');
+        ).to.be.revertedWith('Authenticator: not authorized');
 
         await expect(
             bridge23.connect(test).transferV2(name2, hashedAdmin, amount)
-        ).to.be.revertedWith('ERC20: unauthorized operator');
+        ).to.be.revertedWith('Authenticator: not authorized');
 
         await expect(
             bridge23.connect(admin).transferV2(hashedTest, name2, amount)
-        ).to.be.revertedWith('ERC20: unauthorized operator');
+        ).to.be.revertedWith('Authenticator: not authorized');
 
         await expect(
             bridge23.connect(test).transferV2(hashedAdmin, name2, amount)
-        ).to.be.revertedWith('ERC20: unauthorized operator');
+        ).to.be.revertedWith('Authenticator: not authorized');
     });
 
     it("transfer", async function() {
@@ -113,8 +113,8 @@ describe("ERC20", function () {
         const name2 = hashString('b32');
         await bridge23.mint(name1, amount);
 
-        await service.register('b23', hashedAdmin);
-        await service.register('b32', name1);
+        await service.setOwner('b23', hashedAdmin);
+        await service.setOwner('b32', name1);
 
         // address to address
         const toTransfer = amount.div(2);
@@ -177,8 +177,8 @@ describe("ERC20", function () {
         const allowance = base.mul(1000);
         const name1 = hashString('b23');
         const name2 = hashString('b32');
-        await service.register('b23', hashedAdmin);
-        await service.register('b32', name1);
+        await service.setOwner('b23', hashedAdmin);
+        await service.setOwner('b32', name1);
 
         // exceptions
         await expect(
@@ -235,8 +235,8 @@ describe("ERC20", function () {
         const allowance = base.mul(1000);
         const name1 = hashString('b23');
         const name2 = hashString('b32');
-        await service.register('b23', hashedAdmin);
-        await service.register('b32', name1);
+        await service.setOwner('b23', hashedAdmin);
+        await service.setOwner('b32', name1);
 
         // increase/decrease allowance: address -> address
         expect(
@@ -328,24 +328,56 @@ describe("ERC20", function () {
 
         const name1 = hashString('b23');
         const name2 = hashString('b32');
-        await service.register('b23', hashedAdmin);
-        await service.register('b32', name1);
+        await service.setOwner('b23', hashedAdmin);
+        await service.setOwner('b32', name1);
 
         await bridge23.mint(hashedAdmin, amount);
         await bridge23.mint(hashedTest, amount);
         await bridge23.mint(name1, amount);
         await bridge23.mint(name2, amount);
 
-        // increase/decrease allowance: address -> address
+        // transferFrom: address -> address
         await bridge23.connect(admin).increaseAllowance(test.address, allowance);
-
-        // increase/decrease allowance: name -> name
-        await bridge23.connect(admin).increaseAllowanceV2(name1, name2, allowance);
+        await expect(
+            bridge23.connect(test).transferFrom(admin.address, test.address, amount)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+        await expect(
+            bridge23.connect(test).transferFrom(admin.address, test.address, allowance)
+        ).to.emit(bridge23, 'TransferV2').withArgs(
+            hashedAdmin, hashedTest, allowance
+        );
 
         // transferFromV2: name -> address
+        await bridge23.connect(admin).increaseAllowanceV2(name1, name2, allowance);
+        await expect(
+            bridge23.connect(admin).transferFromV2(name2, name1, hashedTest, amount)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+        await expect(
+            bridge23.connect(admin).transferFromV2(name2, name1, hashedTest, allowance)
+        ).to.emit(bridge23, 'TransferV2').withArgs(
+            name1, hashedTest, allowance
+        );
+
+        // transferFromV2: name -> name
         await bridge23.connect(admin).increaseAllowanceV2(name1, hashedTest, allowance);
+        await expect(
+            bridge23.connect(test).transferFromV2(hashedTest, name1, name2, amount)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+        await expect(
+            bridge23.connect(test).transferFromV2(hashedTest, name1, name2, allowance)
+        ).to.emit(bridge23, 'TransferV2').withArgs(
+            name1, name2, allowance
+        );
 
         // transferFromV2: address -> name
         await bridge23.connect(admin).increaseAllowanceV2(hashedAdmin, name2, allowance);
+        await expect(
+            bridge23.connect(admin).transferFromV2(name2, hashedAdmin, name1, amount)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+        await expect(
+            bridge23.connect(admin).transferFromV2(name2, hashedAdmin, name1, allowance)
+        ).to.emit(bridge23, 'TransferV2').withArgs(
+            hashedAdmin, name1, allowance
+        );
     });
 });

@@ -17,7 +17,7 @@ contract Authenticator is Context, IAuthenticator {
         address operator = _msgSender();
         require(
             authenticate(id, operator.encode()),
-            'Authenticator: unauthorized operator'
+            'Authenticator: not authorized'
         );
         _;
     }
