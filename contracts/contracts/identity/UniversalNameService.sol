@@ -11,54 +11,27 @@ import './IUniversalNameService.sol';
 contract UniversalNameService is Context, IUniversalNameService {
     using LibIdentity for address;
 
-    mapping(bytes32 => Identity) private _identities;
+    mapping(bytes32 => bytes32) private _owners;
 
-    function register(string memory name_, bytes32 owner_) external {
+    function setOwner(string memory name_, bytes32 newOwner) external {
         bytes32 id = keccak256(abi.encode(name_));
-        require(
-            owner(id) == bytes32(0),
-            'IdentityService: already registered'
-        );
-
         address operator = _msgSender();
-        require(
-            authenticate(owner_, operator.encode()),
-            'IdentityService: not authorized'
-        );
-        _identities[id] = Identity(name_, owner_);
-        emit Register(id, owner_, name_);
-    }
-
-    function setOwner(
-        bytes32 id,
-        bytes32 newOwner
-    ) external {
-        bytes32 operator = (_msgSender()).encode();
         bytes32 oldOwner = owner(id);
         require(
-            authenticate(oldOwner, operator),
+            oldOwner == bytes32(0) || LibIdentity.authenticate(
+                IUniversalNameService(address(this)),
+                oldOwner,
+                operator.encode()
+            ),
             'IdentityService: not authorized'
         );
-        _identities[id].owner = newOwner;
+        _owners[id] = newOwner;
         _checkCircularDependency(newOwner, id);
-        emit SetOwner(id, oldOwner, newOwner);
-    }
-
-    function authenticate(
-        bytes32 id,
-        bytes32 operator
-    ) public override view returns(bool) {
-        if (id == bytes32(0)) { return false; }
-        if (operator == id) { return true; }
-        return authenticate(owner(id), operator);
-    }
-
-    function name(bytes32 id) public override view returns(string memory) {
-        return _identities[id].name;
+        emit OwnerUpdated(id, oldOwner, newOwner);
     }
 
     function owner(bytes32 id) public override view returns(bytes32) {
-        return _identities[id].owner;
+        return _owners[id];
     }
 
     function _checkCircularDependency(
