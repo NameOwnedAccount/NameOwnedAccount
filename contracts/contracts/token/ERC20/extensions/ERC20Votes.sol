@@ -6,13 +6,11 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
-import "../../../governance/utils/IVotesV2.sol";
 import './ERC20Permit.sol';
 
-abstract contract ERC20Votes is IVotesV2, ERC20Permit {
-    using LibIdentity for address;
-
+abstract contract ERC20Votes is IVotes, ERC20Permit {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
@@ -21,32 +19,28 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    bytes32 private constant _DELEGATION_EXTENDED_TYPEHASH =
-        keccak256("Delegation(bytes32 delegatee,uint256 nonce,uint256 expiry)");
-
-    mapping(bytes32 => bytes32) private _delegates;
-    mapping(address => address) private _delegatesLegacy;
-    mapping(bytes32 => Checkpoint[]) private _checkpoints;
+    mapping(address => address) private _delegates;
+    mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
-    function checkpoints(bytes32 account, uint32 pos) public view virtual returns (Checkpoint memory) {
+    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoint memory) {
         return _checkpoints[account][pos];
     }
 
-    function numCheckpoints(bytes32 account) public view virtual returns (uint32) {
+    function numCheckpoints(address account) public view virtual returns (uint32) {
         return SafeCast.toUint32(_checkpoints[account].length);
     }
 
-    function delegates(bytes32 account) public view virtual override returns (bytes32) {
+    function delegates(address account) public view virtual override returns (address) {
         return _delegates[account];
     }
 
-    function getVotes(bytes32 account) public view virtual override returns (uint256) {
+    function getVotes(address account) public view virtual override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
     }
 
-    function getPastVotes(bytes32 account, uint256 blockNumber) public view virtual override returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -73,16 +67,19 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
         return high == 0 ? 0 : ckpts[high - 1].votes;
     }
 
+    function delegate(address delegatee) public virtual override {
+        _delegate(_msgSender(), delegatee);
+    }
+
     function delegate(
-        bytes32 delegator,
-        bytes32 delegatee
-    ) public virtual override onlyAuthenticated(delegator) {
+        address delegator,
+        address delegatee
+    ) public virtual onlyAuthenticated(delegator) {
         _delegate(delegator, delegatee);
     }
 
     function delegateBySig(
-        bytes32 delegator,
-        bytes32 delegatee,
+        address delegatee,
         uint256 nonce,
         uint256 expiry,
         uint8 v,
@@ -91,38 +88,35 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
     ) public virtual override {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_EXTENDED_TYPEHASH, delegatee, nonce, expiry))),
+            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
-
-        bytes32 owner = IUniversalNameService(nameService()).owner(delegator);
-        require(signer.encode() == owner, "ERC20Votes: invalid signature");
-        _delegate(delegator, delegatee);
+        _delegate(signer, delegatee);
     }
 
     function _maxSupply() internal view virtual returns (uint224) {
         return type(uint224).max;
     }
 
-    function _mint(bytes32 account, uint256 amount) internal virtual override {
+    function _mint(address account, uint256 amount) internal virtual override {
         super._mint(account, amount);
-        require(totalSupplyV2() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
 
         _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
     }
 
-    function _burn(bytes32 account, uint256 amount) internal virtual override {
+    function _burn(address account, uint256 amount) internal virtual override {
         super._burn(account, amount);
 
         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
     }
 
     function _afterTokenTransfer(
-        bytes32 from,
-        bytes32 to,
+        address from,
+        address to,
         uint256 amount
     ) internal virtual override {
         super._afterTokenTransfer(from, to, amount);
@@ -130,9 +124,9 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
         _moveVotingPower(delegates(from), delegates(to), amount);
     }
 
-    function _delegate(bytes32 delegator, bytes32 delegatee) internal virtual {
-        bytes32 currentDelegate = delegates(delegator);
-        uint256 delegatorBalance = balanceOfV2(delegator);
+    function _delegate(address delegator, address delegatee) internal virtual {
+        address currentDelegate = delegates(delegator);
+        uint256 delegatorBalance = balanceOf(delegator);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -141,17 +135,17 @@ abstract contract ERC20Votes is IVotesV2, ERC20Permit {
     }
 
     function _moveVotingPower(
-        bytes32 src,
-        bytes32 dst,
+        address src,
+        address dst,
         uint256 amount
     ) private {
         if (src != dst && amount > 0) {
-            if (src != ADDRESS_ZERO) {
+            if (src != address(0)) {
                 (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
-            if (dst != ADDRESS_ZERO) {
+            if (dst != address(0)) {
                 (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
             }

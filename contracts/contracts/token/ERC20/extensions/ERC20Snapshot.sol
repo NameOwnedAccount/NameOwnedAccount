@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "../ERC20.sol";
 
 abstract contract ERC20Snapshot is ERC20 {
-    using LibIdentity for address;
     using Arrays for uint256[];
     using Counters for Counters.Counter;
 
@@ -18,7 +17,7 @@ abstract contract ERC20Snapshot is ERC20 {
         uint256[] values;
     }
 
-    mapping(bytes32 => Snapshots) private _accountBalanceSnapshots;
+    mapping(address => Snapshots) private _accountBalanceSnapshots;
     Snapshots private _totalSupplySnapshots;
 
     Counters.Counter private _currentSnapshotId;
@@ -38,33 +37,29 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     function balanceOfAt(address account, uint256 snapshotId) public view virtual returns (uint256) {
-        return balanceOfAt(account.encode(), snapshotId);
-    }
-
-    function balanceOfAt(bytes32 account, uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(
             snapshotId,
             _accountBalanceSnapshots[account]
         );
-        return snapshotted ? value : balanceOfV2(account);
+        return snapshotted ? value : balanceOf(account);
     }
 
     function totalSupplyAt(uint256 snapshotId) public view virtual returns (uint256) {
         (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
 
-        return snapshotted ? value : totalSupplyV2();
+        return snapshotted ? value : totalSupply();
     }
 
     function _beforeTokenTransfer(
-        bytes32 from,
-        bytes32 to,
+        address from,
+        address to,
         uint256 amount
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-        if (from == ADDRESS_ZERO) {
+        if (from == address(0)) {
             _updateAccountSnapshot(to);
             _updateTotalSupplySnapshot();
-        } else if (to == ADDRESS_ZERO) {
+        } else if (to == address(0)) {
             _updateAccountSnapshot(from);
             _updateTotalSupplySnapshot();
         } else {
@@ -84,8 +79,8 @@ abstract contract ERC20Snapshot is ERC20 {
         }
     }
 
-    function _updateAccountSnapshot(bytes32 account) private {
-        _updateSnapshot(_accountBalanceSnapshots[account], balanceOfV2(account));
+    function _updateAccountSnapshot(address account) private {
+        _updateSnapshot(_accountBalanceSnapshots[account], balanceOf(account));
     }
 
     function _updateTotalSupplySnapshot() private {

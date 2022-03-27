@@ -18,8 +18,13 @@ In this project, We aims to improve the ENS service and ERC20/ERC721/ERC1155 tok
 
 By decoupling the token standard with address, it's possible to generalize the full-custody model with self-custody model. A custodian party can hold millions of usernames controlled by one account address. The custodian party can serve as relayer for user to send transactions. If user want to migrate their account out of the custody party, they can change the owner of the domain name without losing any onchain history. For entry level users, we don't need to generate an public key for them but still keep everything onchain. This will bring huge opportunity of bridging web2 and web3 world, a.k.a. b23.
 
-# Identity Service
-### Account Registration
+# Universal Name Service
+
+### Name Registration
+
+ * hash(abi.encode(string)) => bytes32: string username
+ * hash(abi.encode(address)) => bytes32: address username
+
 Users will have to provide a string username and a public key to register an onchain account. The string could be arbitrary. We store it onchain with a mapping from bytes32 -> (username, owner). Only owner will be able to update the owner and get access to the username. The bytes32 key is the hash of the username, by `keccak256(abi.encode(username))`. Since username is a string, `abi.encode(username)` is guaranteed to be larger than 32 bytes.
 
 ### Authentication Strategy

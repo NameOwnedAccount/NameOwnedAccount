@@ -1,38 +1,32 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 
-import './LibIdentity.sol';
-import './IAuthenticator.sol';
-import './IUniversalNameService.sol';
+import './INameService.sol';
+import './INDA.sol';
 
-contract Authenticator is Context, IAuthenticator {
-    using LibIdentity for address;
+contract Authenticator is Context {
+    INDA constant public _nda = INDA(address(0));
 
-    address immutable private _nameService;
-
-    modifier onlyAuthenticated(bytes32 id) {
-        address operator = _msgSender();
+    modifier onlyAuthenticated(address nameOwnedAddr) {
         require(
-            authenticate(id, operator.encode()),
+            authenticate(nameOwnedAddr, _msgSender()),
             'Authenticator: not authorized'
         );
         _;
     }
 
-    constructor(address nameService_) {
-        _nameService = nameService_;
-    }
-
-    function nameService() public view override returns(address) {
-        return _nameService;
-    }
-
-    function authenticate(bytes32 id, bytes32 operator) public view override returns(bool) {
-        return LibIdentity.authenticate(
-            IUniversalNameService(_nameService), id, operator
-        );
+    function authenticate(
+        address nameOwnedAddr,
+        address operator
+    ) public virtual view returns(bool) {
+        if (nameOwnedAddr == operator) {
+            return true;
+        }
+        (bytes32 node, address nameService) = _nda.name(nameOwnedAddr);
+        return INameService(nameService).owner(node) == operator;
     }
 }
