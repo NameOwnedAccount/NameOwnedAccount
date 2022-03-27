@@ -71,22 +71,13 @@ contract ERC20 is Authenticator, IERC20, IERC20Metadata {
         return true;
     }
 
-    function approveFrom(
-        address owner,
-        address spender,
-        uint256 amount
-    ) public virtual onlyAuthenticated(owner) returns(bool) {
-        _approve(owner, spender, amount);
-        return true;
-    }
-
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
     }
 
-    function increaseAllowanceFrom(
+    function increaseAllowance(
         address owner,
         address spender,
         uint256 addedValue
@@ -106,7 +97,7 @@ contract ERC20 is Authenticator, IERC20, IERC20Metadata {
         return true;
     }
 
-    function decreaseAllowanceFrom(
+    function decreaseAllowance(
         address owner,
         address spender,
         uint256 subtractedValue
