@@ -76,7 +76,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         address delegatee
     ) public virtual {
         (bytes32 node, address ns) = _parseName(delegator);
-        require(_ownerOf(node, ns) == _msgSender(), 'ERC20NDA: not authorized');
+        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
         _delegate(_addressOf(node, ns), delegatee);
     }
 
@@ -117,7 +117,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
             s
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
-        require(signer == _ownerOf(node, ns), "ERC20Permit: invalid signature");
+        require(_isOwner(node, ns, signer), 'ERC20Votes: not authorized');
         _delegate(_addressOf(node, ns), delegatee);
     }
 

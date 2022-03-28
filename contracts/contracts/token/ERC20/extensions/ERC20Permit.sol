@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "../ERC20NDA.sol";
+import "../ERC20NOA.sol";
 
-abstract contract ERC20Permit is ERC20NDA, IERC20Permit, EIP712 {
+abstract contract ERC20Permit is ERC20NOA, IERC20Permit, EIP712 {
     using Counters for Counters.Counter;
 
     mapping(address => Counters.Counter) private _nonces;
@@ -58,7 +58,7 @@ abstract contract ERC20Permit is ERC20NDA, IERC20Permit, EIP712 {
         bytes32 hash = _hashTypedDataV4(structHash);
         address signer = ECDSA.recover(hash, v, r, s);
 
-        require(signer == _ownerOf(node, ns), "ERC20Permit: invalid signature");
+        require(_isOwner(node, ns, signer), "ERC20Permit: invalid signature");
         _approve(owner, spender, value);
     }
 

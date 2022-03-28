@@ -5,29 +5,29 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import '../../identity/INameService.sol';
-import './IERC20NDA.sol';
+import './IERC20NOA.sol';
 
-abstract contract ERC20NDA is IERC20NDA, ERC20 {
+abstract contract ERC20NOA is IERC20NOA, ERC20 {
     function addressOf(bytes memory name) public pure virtual override returns(address) {
         (bytes32 node, address ns) = _parseName(name);
         return _addressOf(node, ns);
     }
 
-    function ownerOf(bytes memory name) public view virtual override returns(address) {
+    function isOwner(bytes memory name, address operator) public view virtual override returns(bool) {
         (bytes32 node, address ns) = _parseName(name);
-        return _ownerOf(node, ns);
+        return _isOwner(node, ns, operator);
     }
 
     function transfer(bytes memory from, address to, uint256 amount) public virtual override returns (bool) {
         (bytes32 node, address ns) = _parseName(from);
-        require(_ownerOf(node, ns) == _msgSender(), 'ERC20NDA: not authorized');
+        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
         _transfer(_addressOf(node, ns), to, amount);
         return true;
     }
 
     function approve(bytes memory owner, address spender, uint256 amount) public virtual override returns (bool) {
         (bytes32 node, address ns) = _parseName(owner);
-        require(_ownerOf(node, ns) == _msgSender(), 'ERC20NDA: not authorized');
+        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
         _approve(_addressOf(node, ns), spender, amount);
         return true;
     }
@@ -38,7 +38,7 @@ abstract contract ERC20NDA is IERC20NDA, ERC20 {
         uint256 addedValue
     ) public virtual returns(bool) {
         (bytes32 node, address ns) = _parseName(owner);
-        require(_ownerOf(node, ns) == _msgSender(), 'ERC20NDA: not authorized');
+        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
         address ownerNDA = _addressOf(node, ns);
         _approve(ownerNDA, spender, allowance(ownerNDA, spender) + addedValue);
         return true;
@@ -50,7 +50,7 @@ abstract contract ERC20NDA is IERC20NDA, ERC20 {
         uint256 subtractedValue
     ) public virtual returns(bool) {
         (bytes32 node, address ns) = _parseName(owner);
-        require(_ownerOf(node, ns) == _msgSender(), 'ERC20NDA: not authorized');
+        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
         address ownerNDA = _addressOf(node, ns);
         uint256 currentAllowance = allowance(ownerNDA, spender);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
@@ -71,8 +71,8 @@ abstract contract ERC20NDA is IERC20NDA, ERC20 {
         }
     }
 
-    function _ownerOf(bytes32 node, address ns) internal view returns(address) {
-        return INameService(ns).owner(node);
+    function _isOwner(bytes32 node, address ns, address operator) internal view returns(bool) {
+        return INameService(ns).owner(node) == operator;
     }
 
     function _parseName(bytes memory name) internal pure returns(bytes32, address) {
