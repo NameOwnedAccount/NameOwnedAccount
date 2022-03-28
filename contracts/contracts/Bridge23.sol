@@ -5,8 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import 'hardhat/console.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 
-import "./token/ERC20/extensions/ERC20Capped.sol";
 import "./token/ERC20/extensions/ERC20Votes.sol";
 
 contract Bridge23 is ERC20Capped, ERC20Votes, Ownable {

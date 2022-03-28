@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "../ERC20.sol";
+import "../ERC20NDA.sol";
 
-abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
+abstract contract ERC20Permit is ERC20NDA, IERC20Permit, EIP712 {
     using Counters for Counters.Counter;
 
     mapping(address => Counters.Counter) private _nonces;
@@ -35,7 +35,30 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         );
         bytes32 hash = _hashTypedDataV4(structHash);
         address signer = ECDSA.recover(hash, v, r, s);
-        require(authenticate(owner, signer), "ERC20Permit: invalid signature");
+        require(signer == owner, "ERC20Permit: invalid signature");
+        _approve(owner, spender, value);
+    }
+
+    function permit(
+        bytes memory name,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
+        (bytes32 node, address ns) = _parseName(name);
+        address owner = _addressOf(node, ns);
+
+        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+        bytes32 structHash = keccak256(
+            abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline)
+        );
+        bytes32 hash = _hashTypedDataV4(structHash);
+        address signer = ECDSA.recover(hash, v, r, s);
+
+        require(signer == _ownerOf(node, ns), "ERC20Permit: invalid signature");
         _approve(owner, spender, value);
     }
 
