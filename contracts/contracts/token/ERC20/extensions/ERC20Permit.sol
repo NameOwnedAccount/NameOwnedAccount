@@ -49,17 +49,17 @@ abstract contract ERC20Permit is ERC20NOA, IERC20Permit, EIP712 {
         bytes32 s
     ) public virtual {
         (bytes32 node, address ns) = _parseName(name);
-        address owner = _addressOf(node, ns);
+        address ownerNOA = _addressOf(node, ns);
 
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
         bytes32 structHash = keccak256(
-            abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline)
+            abi.encode(_PERMIT_TYPEHASH, ownerNOA, spender, value, _useNonce(ownerNOA), deadline)
         );
         bytes32 hash = _hashTypedDataV4(structHash);
         address signer = ECDSA.recover(hash, v, r, s);
 
         require(_isOwner(node, ns, signer), "ERC20Permit: invalid signature");
-        _approve(owner, spender, value);
+        _approve(ownerNOA, spender, value);
     }
 
     function nonces(address owner) public view virtual override returns (uint256) {

@@ -75,9 +75,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         bytes memory delegator,
         address delegatee
     ) public virtual {
-        (bytes32 node, address ns) = _parseName(delegator);
-        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
-        _delegate(_addressOf(node, ns), delegatee);
+        _delegate(_authenticate(delegator), delegatee);
     }
 
     function delegateBySig(
@@ -108,7 +106,6 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        (bytes32 node, address ns) = _parseName(delegator);
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
@@ -117,8 +114,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
             s
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
-        require(_isOwner(node, ns, signer), 'ERC20Votes: not authorized');
-        _delegate(_addressOf(node, ns), delegatee);
+        _delegate(_authenticate(delegator), delegatee);
     }
 
     function _maxSupply() internal view virtual returns (uint224) {

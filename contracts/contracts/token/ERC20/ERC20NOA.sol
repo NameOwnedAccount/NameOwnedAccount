@@ -19,16 +19,12 @@ abstract contract ERC20NOA is IERC20NOA, ERC20 {
     }
 
     function transfer(bytes memory from, address to, uint256 amount) public virtual override returns (bool) {
-        (bytes32 node, address ns) = _parseName(from);
-        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
-        _transfer(_addressOf(node, ns), to, amount);
+        _transfer(_authenticate(from), to, amount);
         return true;
     }
 
     function approve(bytes memory owner, address spender, uint256 amount) public virtual override returns (bool) {
-        (bytes32 node, address ns) = _parseName(owner);
-        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
-        _approve(_addressOf(node, ns), spender, amount);
+        _approve(_authenticate(owner), spender, amount);
         return true;
     }
 
@@ -37,10 +33,8 @@ abstract contract ERC20NOA is IERC20NOA, ERC20 {
         address spender,
         uint256 addedValue
     ) public virtual returns(bool) {
-        (bytes32 node, address ns) = _parseName(owner);
-        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
-        address ownerNDA = _addressOf(node, ns);
-        _approve(ownerNDA, spender, allowance(ownerNDA, spender) + addedValue);
+        address ownerNOA = _authenticate(owner);
+        _approve(ownerNOA, spender, allowance(ownerNOA, spender) + addedValue);
         return true;
     }
 
@@ -49,15 +43,19 @@ abstract contract ERC20NOA is IERC20NOA, ERC20 {
         address spender,
         uint256 subtractedValue
     ) public virtual returns(bool) {
-        (bytes32 node, address ns) = _parseName(owner);
-        require(_isOwner(node, ns, _msgSender()), 'ERC20NDA: not authorized');
-        address ownerNDA = _addressOf(node, ns);
-        uint256 currentAllowance = allowance(ownerNDA, spender);
+        address ownerNOA = _authenticate(owner);
+        uint256 currentAllowance = allowance(ownerNOA, spender);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {
-            _approve(ownerNDA, spender, currentAllowance - subtractedValue);
+            _approve(ownerNOA, spender, currentAllowance - subtractedValue);
         }
         return true;
+    }
+
+    function _authenticate(bytes memory name) internal view returns(address) {
+        (bytes32 node, address ns) = _parseName(name);
+        require(_isOwner(node, ns, _msgSender()), 'ERC20NOA: not authorized');
+        return _addressOf(node, ns);
     }
 
     function _addressOf(bytes32 node, address ns) internal pure returns(address account) {
