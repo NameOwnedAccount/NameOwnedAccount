@@ -7,7 +7,17 @@ interface IERC20NOA {
 
     function isOwner(bytes memory name, address owner) external returns(bool);
 
-    function transfer(bytes memory from, address to, uint256 amount) external returns(bool);
+    function transferFrom(bytes memory from, address to, uint256 amount) external returns(bool);
 
-    function approve(bytes memory, address spender, uint256 amount) external returns(bool);
+    function increaseAllowanceFrom(
+        bytes memory owner,
+        address spender,
+        uint256 addedValue
+    ) external returns(bool);
+
+    function decreaseAllowance(
+        bytes memory owner,
+        address spender,
+        uint256 subtractedValue
+    ) external returns(bool);
 }
