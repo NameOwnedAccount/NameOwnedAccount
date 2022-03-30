@@ -39,7 +39,7 @@ abstract contract ERC20NOA is IERC20NOA, ERC20 {
         return true;
     }
 
-    function decreaseAllowance(
+    function decreaseAllowanceFrom(
         bytes memory owner,
         address spender,
         uint256 subtractedValue

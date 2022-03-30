@@ -15,7 +15,7 @@ interface IERC20NOA {
         uint256 addedValue
     ) external returns(bool);
 
-    function decreaseAllowance(
+    function decreaseAllowanceFrom(
         bytes memory owner,
         address spender,
         uint256 subtractedValue
