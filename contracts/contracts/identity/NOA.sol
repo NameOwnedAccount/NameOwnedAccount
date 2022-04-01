@@ -6,7 +6,9 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import './INameService.sol';
 import './INOA.sol';
 
-abstract contract NOA is INOA, Context {
+contract NOA is INOA, Context {
+    bytes32 constant private ADDRESS_OF_HASH = keccak256("addressOf(bytes name)");
+
     function addressOf(bytes memory name) public pure virtual override returns(address) {
         (bytes32 node, address ns) = _parseName(name);
         return _addressOf(node, ns);
@@ -27,14 +29,10 @@ abstract contract NOA is INOA, Context {
     }
 
     function _addressOf(bytes32 node, address ns) internal pure returns(address account) {
-        assembly {
-            let ptr := mload(0x40)
-            mstore(ptr, 0xff)
-            mstore(add(ptr, 0x01), shl(0x60, 0x0000000000000000000000000000000000000000))
-            mstore(add(ptr, 0x15), shl(0x60, ns))
-            mstore(add(ptr, 0x35), node)
-            account := keccak256(ptr, 0x55)
-        }
+        bytes32 hash = keccak256(
+            abi.encodePacked(bytes1(0xff), ns, node, ADDRESS_OF_HASH)
+        );
+        return address(uint160(uint(hash)));
     }
 
     function _isOwner(bytes32 node, address ns, address operator) internal view returns(bool) {

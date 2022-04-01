@@ -7,6 +7,12 @@ module.exports = async ({ ethers, upgrades, localConfig } = hre) => {
         args: [],
         log: true
     });
+
+    await deployments.deploy('CustodialNameService', {
+        from: owner.signer.address,
+        args: [owner.address],
+        log: true
+    });
 };
 
-module.exports.tags = ['UniversalNameService'];
+module.exports.tags = ['NameService'];
