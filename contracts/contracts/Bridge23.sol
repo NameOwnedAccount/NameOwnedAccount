@@ -14,7 +14,7 @@ contract Bridge23 is ERC20Capped, ERC20Votes, Ownable {
         string memory name,
         string memory symbol,
         uint256 supplyCap
-    ) ERC20(name, symbol)
+    ) ERC20NOA(name, symbol)
       ERC20Capped(supplyCap)
       ERC20Permit(name) { }
 

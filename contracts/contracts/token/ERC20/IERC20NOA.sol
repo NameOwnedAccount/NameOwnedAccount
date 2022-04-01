@@ -2,12 +2,15 @@
 pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
-interface IERC20NOA {
-    function addressOf(bytes memory name) external returns(address);
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import '../../identity/INOA.sol';
 
-    function isOwner(bytes memory name, address owner) external returns(bool);
-
-    function transferFrom(bytes memory from, address to, uint256 amount) external returns(bool);
+interface IERC20NOA is INOA, IERC20 {
+    function transferFrom(
+        bytes memory from,
+        address to,
+        uint256 amount
+    ) external returns(bool);
 
     function increaseAllowanceFrom(
         bytes memory owner,
