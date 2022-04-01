@@ -7,14 +7,14 @@ import './INameService.sol';
 import './INOA.sol';
 
 contract NOA is INOA, Context {
-    bytes32 constant private ADDRESS_OF_HASH = keccak256("addressOf(bytes name)");
+    bytes32 constant private ADDRESS_OF_HASH = keccak256("addressOfName(bytes name)");
 
-    function addressOf(bytes memory name) public pure virtual override returns(address) {
+    function addressOfName(bytes memory name) public pure virtual override returns(address) {
         (bytes32 node, address ns) = _parseName(name);
         return _addressOf(node, ns);
     }
 
-    function isOwner(bytes memory name, address operator) public view virtual override returns(bool) {
+    function isNameOwner(bytes memory name, address operator) public view virtual override returns(bool) {
         (bytes32 node, address ns) = _parseName(name);
         return _isOwner(node, ns, operator);
     }
