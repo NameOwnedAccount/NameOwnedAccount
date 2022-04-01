@@ -12,13 +12,19 @@ interface IERC20NOA is INOA, IERC20 {
         uint256 amount
     ) external returns(bool);
 
-    function increaseAllowanceFrom(
+    function approve(
+        bytes memory _owner,
+        address _spender,
+        uint256 _value
+    ) external returns(bool);
+
+    function increaseAllowance(
         bytes memory owner,
         address spender,
         uint256 addedValue
     ) external returns(bool);
 
-    function decreaseAllowanceFrom(
+    function decreaseAllowance(
         bytes memory owner,
         address spender,
         uint256 subtractedValue

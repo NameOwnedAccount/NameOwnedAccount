@@ -14,7 +14,11 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
         string memory symbol
     ) ERC20(name, symbol) { }
 
-    function transferFrom(bytes memory from, address to, uint256 amount) public virtual override returns(bool) {
+    function transferFrom(
+        bytes memory from,
+        address to,
+        uint256 amount
+    ) public virtual override returns(bool) {
         (bytes32 node, address ns) = _parseName(from);
         address fromNOA = _addressOf(node, ns);
         address spender = _msgSender();
@@ -25,7 +29,17 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
         return true;
     }
 
-    function increaseAllowanceFrom(
+    function approve(
+        bytes memory owner,
+        address spender,
+        uint256 amount
+    ) public virtual override returns(bool) {
+        address ownerNOA = _authenticate(owner);
+        _approve(ownerNOA, spender, amount);
+        return true;
+    }
+
+    function increaseAllowance(
         bytes memory owner,
         address spender,
         uint256 addedValue
@@ -35,14 +49,17 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
         return true;
     }
 
-    function decreaseAllowanceFrom(
+    function decreaseAllowance(
         bytes memory owner,
         address spender,
         uint256 subtractedValue
     ) public virtual override returns(bool) {
         address ownerNOA = _authenticate(owner);
         uint256 currentAllowance = allowance(ownerNOA, spender);
-        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        require(
+            currentAllowance >= subtractedValue,
+            "ERC20: decreased allowance below zero"
+        );
         unchecked {
             _approve(ownerNOA, spender, currentAllowance - subtractedValue);
         }
