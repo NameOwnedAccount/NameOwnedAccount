@@ -24,7 +24,9 @@ contract ERC721NOA is IERC721NOA, NOA, ERC721 {
         address fromNOA = _addressOf(node, ns);
         address operator = _msgSender();
         require(
-            _isOwner(node, ns, operator) || _isApprovedOrOwner(operator, tokenId),
+            _isOwner(node, ns, operator)
+                || isApprovedForAll(fromNOA, operator)
+                || getApproved(tokenId) == operator,
             "ERC721: transfer caller is not owner nor approved"
         );
         _safeTransfer(fromNOA, to, tokenId, data);
