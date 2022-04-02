@@ -3,17 +3,11 @@ const assert = require('assert');
 
 module.exports = async ({ ethers, deployments, localConfig } = hre) => {
     const owner = await admin(hre);
-    const identityService = await hre.deployments.getOrNull(
-        'UniversalNameService'
-    );
-    assert(identityService !== undefined);
-
     const deployment = await deployments.deploy('Bridge23', {
         from: owner.signer.address,
         args: [
             'Bridge23',
             'B23',
-            identityService.address,
             ethers.BigNumber.from(10).pow(18).mul(10000000)
         ],
         log: true

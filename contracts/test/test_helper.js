@@ -24,12 +24,19 @@ const genAddress = (encoded) => {
         ['string', 'address'],
         encoded
     );
-    return ethers.utils.keccak256(
-        ethers.utils.concat(
-            [0xff],
-            ethers.utils.arrayify(ethers.constants.AddressZero),
-            ethers.utils.arrayify(decoded[1]),
-            ethers.utils.arrayify(genNode(decoded[0]))
+    const addressOfNameHash = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes("addressOfName(bytes name)")
+    );
+    const raw = ethers.utils.concat([
+        0xff,
+        decoded[1],
+        genNode(decoded[0]),
+        addressOfNameHash
+    ]);
+    const hash = ethers.utils.keccak256(raw);
+    return ethers.utils.getAddress(
+        ethers.utils.hexlify(
+            ethers.utils.arrayify(hash).slice(12)
         )
     );
 };
