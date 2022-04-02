@@ -64,53 +64,82 @@ describe("NOA", function () {
 
     it("transferFrom", async function() {
         const alice = genName('alice', cns.address);
+        await cns.connect(admin).setOwner(genNode('alice'), test.address);
 
         // mint
-        await erc20noa.mint(genAddress(alice), 10000);
+        await erc20noa.connect(admin).mint(genAddress(alice), 10000);
 
-        // transfer from name to address
+        // transfer from name failed
         await expect(
-            erc20noa["transferFrom(bytes,address,uint256)"](alice, test.address, 5000)
+            erc20noa.connect(admin)[
+                "transferFrom(bytes,address,uint256)"
+            ](alice, test.address, 5000)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+
+        // transfer from name success
+        await expect(
+            erc20noa.connect(test)[
+                "transferFrom(bytes,address,uint256)"
+            ](alice, test.address, 5000)
         ).to.emit(erc20noa, 'Transfer').withArgs(
             genAddress(alice), test.address, 5000
-        );
-
-        // transfer from name to name
-        const bob = genName('bob', uns.address);
-        await expect(
-            erc20noa["transferFrom(bytes,address,uint256)"](alice, genAddress(bob), 5000)
-        ).to.emit(erc20noa, 'Transfer').withArgs(
-            genAddress(alice), genAddress(bob), 5000
         );
     });
 
     it("approve", async function() {
         const alice = genName('alice', cns.address);
+        await cns.connect(admin).setOwner(genNode('alice'), test.address);
 
         // approve
         await expect(
-            erc20noa['approve(bytes,address,uint256)'](alice, test.address, 10000)
+            erc20noa.connect(admin)[
+                'approve(bytes,address,uint256)'
+            ](alice, test.address, 10000)
+        ).to.be.revertedWith('ERC20: caller is not owner');
+
+        await expect(
+            erc20noa.connect(test)[
+                'approve(bytes,address,uint256)'
+            ](alice, test.address, 10000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 10000
         );
 
         // decrease allowance failed
         await expect(
-            erc20noa['decreaseAllowance(bytes,address,uint256)'](alice, test.address, 100000)
+            erc20noa.connect(test)[
+                'decreaseAllowance(bytes,address,uint256)'
+            ](alice, test.address, 100000)
         ).to.be.revertedWith(
             "ERC20: decreased allowance below zero"
         );
 
+        await expect(
+            erc20noa.connect(admin)[
+                'decreaseAllowance(bytes,address,uint256)'
+            ](alice, test.address, 6000)
+        ).to.be.revertedWith('ERC20: caller is not owner');
+
         // decrease allowance success
         await expect(
-            erc20noa['decreaseAllowance(bytes,address,uint256)'](alice, test.address, 6000)
+            erc20noa.connect(test)[
+                'decreaseAllowance(bytes,address,uint256)'
+            ](alice, test.address, 6000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 4000
         );
 
         // increase allowance
         await expect(
-            erc20noa['increaseAllowance(bytes,address,uint256)'](alice, test.address, 3000)
+            erc20noa.connect(admin)[
+                'increaseAllowance(bytes,address,uint256)'
+            ](alice, test.address, 3000)
+        ).to.be.revertedWith('ERC20: caller is not owner');
+
+        await expect(
+            erc20noa.connect(test)[
+                'increaseAllowance(bytes,address,uint256)'
+            ](alice, test.address, 3000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 7000
         );

@@ -24,7 +24,7 @@ contract ERC721NOA is IERC721NOA, NOA, ERC721 {
         address fromNOA = _addressOf(node, ns);
         address operator = _msgSender();
         require(
-            _isOwner(node, ns, operator) && _isApprovedOrOwner(operator, tokenId),
+            _isOwner(node, ns, operator) || _isApprovedOrOwner(operator, tokenId),
             "ERC721: transfer caller is not owner nor approved"
         );
         _safeTransfer(fromNOA, to, tokenId, data);
@@ -39,17 +39,15 @@ contract ERC721NOA is IERC721NOA, NOA, ERC721 {
     }
 
     function approve(
-        bytes memory owner,
+        bytes memory from,
         address to,
         uint256 tokenId
     ) public virtual override {
-        (bytes32 node, address ns) = _parseName(owner);
-        address ownerNOA = _addressOf(node, ns);
-        require(to != ownerNOA, "ERC721: approval to current owner");
-
+        address owner = ERC721.ownerOf(tokenId);
+        require(to != owner, "ERC721: approval to current owner");
         address operator = _msgSender();
         require(
-            _isOwner(node, ns, operator) || isApprovedForAll(ownerNOA, operator),
+            _isFromTokenOwner(from, owner, operator) || isApprovedForAll(owner, operator),
             "ERC721: approve caller is not owner nor approved for all"
         );
         _approve(to, tokenId);
@@ -60,7 +58,21 @@ contract ERC721NOA is IERC721NOA, NOA, ERC721 {
         address operator,
         bool approved
     ) public virtual override {
-        address ownerNOA = _authenticate(owner);
-        _setApprovalForAll(ownerNOA, operator, approved);
+        (bytes32 node, address ns) = _parseName(owner);
+        require(
+            _isOwner(node, ns, _msgSender()),
+            'ERC721: caller is not owner'
+        );
+        _setApprovalForAll(_addressOf(node, ns), operator, approved);
+    }
+
+    function _isFromTokenOwner(
+        bytes memory from,
+        address owner,
+        address operator
+    ) internal view returns(bool) {
+        (bytes32 node, address ns) = _parseName(from);
+        address fromNOA = _addressOf(node, ns);
+        return fromNOA == owner && _isOwner(node, ns, operator);
     }
 }

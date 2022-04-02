@@ -19,15 +19,6 @@ contract NOA is INOA, Context {
         return _isOwner(node, ns, operator);
     }
 
-    function _authenticate(bytes memory name) internal view returns(address) {
-        (bytes32 node, address ns) = _parseName(name);
-        require(
-            _isOwner(node, ns, _msgSender()),
-            'ERC20NOA: not authorized'
-        );
-        return _addressOf(node, ns);
-    }
-
     function _addressOf(bytes32 node, address ns) internal pure returns(address account) {
         bytes32 hash = keccak256(
             abi.encodePacked(bytes1(0xff), ns, node, ADDRESS_OF_HASH)

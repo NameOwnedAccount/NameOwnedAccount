@@ -65,4 +65,13 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
         }
         return true;
     }
+
+    function _authenticate(bytes memory name) internal view returns(address) {
+        (bytes32 node, address ns) = _parseName(name);
+        require(
+            _isOwner(node, ns, _msgSender()),
+            'ERC20: caller is not owner'
+        );
+        return _addressOf(node, ns);
+    }
 }
