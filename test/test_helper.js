@@ -25,7 +25,7 @@ const genAddress = (encoded) => {
         encoded
     );
     const addressOfNameHash = ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes("eipxxxx.addressOfName")
+        ethers.utils.toUtf8Bytes("eip4972.addressOfName")
     );
     const raw = ethers.utils.concat([
         0xff,

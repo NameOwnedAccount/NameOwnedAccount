@@ -7,8 +7,7 @@ import './INameService.sol';
 import './INameOwnedAccount.sol';
 
 contract NameOwnedAccount is INameOwnedAccount, Context {
-    // TODO: replace xxxx to EIP number
-    bytes32 constant private FUNC_HASH = keccak256("eipxxxx.addressOfName");
+    bytes32 constant private FUNC_HASH = keccak256("eip4972.addressOfName");
 
     function addressOfName(bytes memory name) public pure virtual override returns(address) {
         (bytes32 node, address ns) = _parseName(name);
