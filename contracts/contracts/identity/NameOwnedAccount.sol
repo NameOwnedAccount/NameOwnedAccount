@@ -4,9 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import './INameService.sol';
-import './INOA.sol';
+import './INameOwnedAccount.sol';
 
-contract NOA is INOA, Context {
+contract NameOwnedAccount is INameOwnedAccount, Context {
     bytes32 constant private ADDRESS_OF_HASH = keccak256("addressOfName(bytes name)");
 
     function addressOfName(bytes memory name) public pure virtual override returns(address) {
@@ -17,6 +17,15 @@ contract NOA is INOA, Context {
     function isNameOwner(bytes memory name, address operator) public view virtual override returns(bool) {
         (bytes32 node, address ns) = _parseName(name);
         return _isOwner(node, ns, operator);
+    }
+
+    function _authenticate(bytes memory name) internal view returns(address) {
+        (bytes32 node, address ns) = _parseName(name);
+        require(
+            _isOwner(node, ns, _msgSender()),
+            'NameOwnedAccount: caller is not owner'
+        );
+        return _addressOf(node, ns);
     }
 
     function _addressOf(bytes32 node, address ns) internal pure returns(address account) {

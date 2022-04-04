@@ -5,31 +5,26 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import '../../identity/INameService.sol';
-import '../../identity/NOA.sol';
+import '../../identity/NameOwnedAccount.sol';
 import './IERC20NOA.sol';
 
-contract ERC20NOA is IERC20NOA, NOA, ERC20 {
+contract ERC20NOA is IERC20NOA, NameOwnedAccount, ERC20 {
     constructor(
         string memory name,
         string memory symbol
     ) ERC20(name, symbol) { }
 
-    function transferFrom(
+    function transferFromName(
         bytes memory from,
         address to,
         uint256 amount
     ) public virtual override returns(bool) {
-        (bytes32 node, address ns) = _parseName(from);
-        address fromNOA = _addressOf(node, ns);
-        address spender = _msgSender();
-        if (!_isOwner(node, ns, spender)) {
-            _spendAllowance(fromNOA, spender, amount);
-        }
+        address fromNOA = _authenticate(from);
         _transfer(fromNOA, to, amount);
         return true;
     }
 
-    function approve(
+    function approveFromName(
         bytes memory owner,
         address spender,
         uint256 amount
@@ -39,7 +34,7 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
         return true;
     }
 
-    function increaseAllowance(
+    function increaseAllowanceFromName(
         bytes memory owner,
         address spender,
         uint256 addedValue
@@ -49,7 +44,7 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
         return true;
     }
 
-    function decreaseAllowance(
+    function decreaseAllowanceFromName(
         bytes memory owner,
         address spender,
         uint256 subtractedValue
@@ -64,14 +59,5 @@ contract ERC20NOA is IERC20NOA, NOA, ERC20 {
             _approve(ownerNOA, spender, currentAllowance - subtractedValue);
         }
         return true;
-    }
-
-    function _authenticate(bytes memory name) internal view returns(address) {
-        (bytes32 node, address ns) = _parseName(name);
-        require(
-            _isOwner(node, ns, _msgSender()),
-            'ERC20: caller is not owner'
-        );
-        return _addressOf(node, ns);
     }
 }

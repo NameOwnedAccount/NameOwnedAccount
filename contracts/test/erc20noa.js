@@ -62,7 +62,7 @@ describe("NOA", function () {
         expect(await erc20noa.decimals()).to.equal(18);
     });
 
-    it("transferFrom", async function() {
+    it("transferFromName", async function() {
         const alice = genName('alice', cns.address);
         await cns.connect(admin).setOwner(genNode('alice'), test.address);
 
@@ -71,75 +71,57 @@ describe("NOA", function () {
 
         // transfer from name failed
         await expect(
-            erc20noa.connect(admin)[
-                "transferFrom(bytes,address,uint256)"
-            ](alice, test.address, 5000)
-        ).to.be.revertedWith("ERC20: insufficient allowance");
+            erc20noa.connect(admin).transferFromName(alice, test.address, 5000)
+        ).to.be.revertedWith("NameOwnedAccount: caller is not owner");
 
         // transfer from name success
         await expect(
-            erc20noa.connect(test)[
-                "transferFrom(bytes,address,uint256)"
-            ](alice, test.address, 5000)
+            erc20noa.connect(test).transferFromName(alice, test.address, 5000)
         ).to.emit(erc20noa, 'Transfer').withArgs(
             genAddress(alice), test.address, 5000
         );
     });
 
-    it("approve", async function() {
+    it("approveName", async function() {
         const alice = genName('alice', cns.address);
         await cns.connect(admin).setOwner(genNode('alice'), test.address);
 
         // approve
         await expect(
-            erc20noa.connect(admin)[
-                'approve(bytes,address,uint256)'
-            ](alice, test.address, 10000)
-        ).to.be.revertedWith('ERC20: caller is not owner');
+            erc20noa.connect(admin).approveFromName(alice, test.address, 10000)
+        ).to.be.revertedWith('NameOwnedAccount: caller is not owner');
 
         await expect(
-            erc20noa.connect(test)[
-                'approve(bytes,address,uint256)'
-            ](alice, test.address, 10000)
+            erc20noa.connect(test).approveFromName(alice, test.address, 10000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 10000
         );
 
         // decrease allowance failed
         await expect(
-            erc20noa.connect(test)[
-                'decreaseAllowance(bytes,address,uint256)'
-            ](alice, test.address, 100000)
+            erc20noa.connect(test).decreaseAllowanceFromName(alice, test.address, 100000)
         ).to.be.revertedWith(
             "ERC20: decreased allowance below zero"
         );
 
         await expect(
-            erc20noa.connect(admin)[
-                'decreaseAllowance(bytes,address,uint256)'
-            ](alice, test.address, 6000)
-        ).to.be.revertedWith('ERC20: caller is not owner');
+            erc20noa.connect(admin).decreaseAllowanceFromName(alice, test.address, 6000)
+        ).to.be.revertedWith('NameOwnedAccount: caller is not owner');
 
         // decrease allowance success
         await expect(
-            erc20noa.connect(test)[
-                'decreaseAllowance(bytes,address,uint256)'
-            ](alice, test.address, 6000)
+            erc20noa.connect(test).decreaseAllowanceFromName(alice, test.address, 6000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 4000
         );
 
         // increase allowance
         await expect(
-            erc20noa.connect(admin)[
-                'increaseAllowance(bytes,address,uint256)'
-            ](alice, test.address, 3000)
-        ).to.be.revertedWith('ERC20: caller is not owner');
+            erc20noa.connect(admin).increaseAllowanceFromName(alice, test.address, 3000)
+        ).to.be.revertedWith('NameOwnedAccount: caller is not owner');
 
         await expect(
-            erc20noa.connect(test)[
-                'increaseAllowance(bytes,address,uint256)'
-            ](alice, test.address, 3000)
+            erc20noa.connect(test).increaseAllowanceFromName(alice, test.address, 3000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 7000
         );

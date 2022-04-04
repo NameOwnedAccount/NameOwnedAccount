@@ -5,76 +5,55 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import '../../identity/INameService.sol';
-import '../../identity/NOA.sol';
+import '../../identity/NameOwnedAccount.sol';
 import './IERC721NOA.sol';
 
-contract ERC721NOA is IERC721NOA, NOA, ERC721 {
+contract ERC721NOA is IERC721NOA, NameOwnedAccount, ERC721 {
     constructor(
         string memory name,
         string memory symbol
     ) ERC721(name, symbol) { }
 
-    function safeTransferFrom(
+    function safeTransferFromName(
         bytes memory from,
         address to,
         uint256 tokenId,
         bytes memory data
     ) public virtual override {
-        (bytes32 node, address ns) = _parseName(from);
-        address fromNOA = _addressOf(node, ns);
-        address operator = _msgSender();
-        require(
-            _isOwner(node, ns, operator)
-                || isApprovedForAll(fromNOA, operator)
-                || getApproved(tokenId) == operator,
-            "ERC721: transfer caller is not owner nor approved"
-        );
+        address fromNOA = _authenticate(from);
         _safeTransfer(fromNOA, to, tokenId, data);
     }
 
-    function safeTransferFrom(
+    function safeTransferFromName(
         bytes memory from,
         address to,
         uint256 tokenId
     ) public virtual override {
-        safeTransferFrom(from, to, tokenId, '');
+        safeTransferFromName(from, to, tokenId, '');
     }
 
-    function approve(
+    function approveFromName(
         bytes memory from,
         address to,
         uint256 tokenId
     ) public virtual override {
         address owner = ERC721.ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
-        address operator = _msgSender();
+
+        address fromNOA = _authenticate(from);
         require(
-            _isFromTokenOwner(from, owner, operator) || isApprovedForAll(owner, operator),
+            fromNOA == owner || isApprovedForAll(owner, fromNOA),
             "ERC721: approve caller is not owner nor approved for all"
         );
         _approve(to, tokenId);
     }
 
-    function setApprovalForAll(
+    function setApprovalForAllFromName(
         bytes memory owner,
         address operator,
         bool approved
     ) public virtual override {
-        (bytes32 node, address ns) = _parseName(owner);
-        require(
-            _isOwner(node, ns, _msgSender()),
-            'ERC721: caller is not owner'
-        );
-        _setApprovalForAll(_addressOf(node, ns), operator, approved);
-    }
-
-    function _isFromTokenOwner(
-        bytes memory from,
-        address owner,
-        address operator
-    ) internal view returns(bool) {
-        (bytes32 node, address ns) = _parseName(from);
-        address fromNOA = _addressOf(node, ns);
-        return fromNOA == owner && _isOwner(node, ns, operator);
+        address fromNOA = _authenticate(owner);
+        _setApprovalForAll(fromNOA, operator, approved);
     }
 }
