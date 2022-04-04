@@ -25,13 +25,13 @@ const genAddress = (encoded) => {
         encoded
     );
     const addressOfNameHash = ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes("addressOfName(bytes name)")
+        ethers.utils.toUtf8Bytes("eipxxxx.addressOfName")
     );
     const raw = ethers.utils.concat([
         0xff,
+        addressOfNameHash,
         decoded[1],
-        genNode(decoded[0]),
-        addressOfNameHash
+        genNode(decoded[0])
     ]);
     const hash = ethers.utils.keccak256(raw);
     return ethers.utils.getAddress(
