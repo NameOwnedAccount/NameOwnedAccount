@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./token/ERC721/ERC721NOA.sol";
 
-contract Bridge23NFT is ERC721NOA, Ownable {
+contract ERC721NOATest is ERC721NOA, Ownable {
     constructor(
         string memory name,
         string memory symbol

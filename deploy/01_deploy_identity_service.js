@@ -1,16 +1,14 @@
-const { admin } = require('../lib/utils.js');
-
 module.exports = async ({ ethers, upgrades, localConfig } = hre) => {
-    const owner = await admin(hre);
+    const admin = await ethers.getNamedSigner('admin');
     await deployments.deploy('UniversalNameService', {
-        from: owner.signer.address,
+        from: admin.address,
         args: [],
         log: true
     });
 
     await deployments.deploy('CustodialNameService', {
-        from: owner.signer.address,
-        args: [owner.address],
+        from: admin.address,
+        args: [admin.address],
         log: true
     });
 };

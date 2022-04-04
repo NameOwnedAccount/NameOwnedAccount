@@ -19,10 +19,10 @@ describe("NOA", function () {
         admin = signers.admin;
         test = signers.test;
 
-        await hre.deployments.fixture(['NameService', 'Bridge23']);
+        await hre.deployments.fixture(['NameService', 'ERC20']);
         uns = await getDeployment('UniversalNameService');
         cns = await getDeployment('CustodialNameService');
-        erc20noa = await getDeployment('Bridge23');
+        erc20noa = await getDeployment('ERC20NOATest');
     });
 
     it("addressOfName", async function() {
@@ -57,8 +57,8 @@ describe("NOA", function () {
     });
 
     it("erc20 metadata", async function() {
-        expect(await erc20noa.name()).to.equal("Bridge23");
-        expect(await erc20noa.symbol()).to.equal("B23");
+        expect(await erc20noa.name()).to.equal("ERC20NOATest");
+        expect(await erc20noa.symbol()).to.equal("ENT20");
         expect(await erc20noa.decimals()).to.equal(18);
     });
 

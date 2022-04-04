@@ -19,10 +19,10 @@ describe("NOA", function () {
         admin = signers.admin;
         test = signers.test;
 
-        await hre.deployments.fixture(['NameService', 'Bridge23NFT']);
+        await hre.deployments.fixture(['NameService', 'ERC721']);
         uns = await getDeployment('UniversalNameService');
         cns = await getDeployment('CustodialNameService');
-        erc721noa = await getDeployment('Bridge23NFT');
+        erc721noa = await getDeployment('ERC721NOATest');
     });
 
     it("addressOfName", async function() {
@@ -57,8 +57,8 @@ describe("NOA", function () {
     });
 
     it("erc721 metadata", async function() {
-        expect(await erc721noa.name()).to.equal("Bridge23NFT");
-        expect(await erc721noa.symbol()).to.equal("B23NFT");
+        expect(await erc721noa.name()).to.equal("ERC721NOATest");
+        expect(await erc721noa.symbol()).to.equal("ENT721");
     });
 
     it("safeTransferFromName", async function() {

@@ -1,21 +1,10 @@
-const { admin } = require('../lib/utils.js');
-const assert = require('assert');
-
 module.exports = async ({ ethers, deployments, localConfig } = hre) => {
-    const owner = await admin(hre);
-    const deployment = await deployments.deploy('Bridge23NFT', {
-        from: owner.signer.address,
-        args: ['Bridge23NFT', 'B23NFT'],
+    const admin = await ethers.getNamedSigner('admin');
+    const deployment = await deployments.deploy('ERC721NOATest', {
+        from: admin.address,
+        args: ['ERC721NOATest', 'ENT721'],
         log: true
     });
-
-    if (owner.address != owner.signer.address) {
-        const bridge23 = await ethers.getContractAt(
-            'Bridge23NFT',
-            deployment.address
-        );
-        await bridge23.transferOwnership(owner.address);
-    }
 };
 
-module.exports.tags = ['Bridge23NFT'];
+module.exports.tags = ['ERC721'];

@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 
 import "./token/ERC20/extensions/ERC20Votes.sol";
 
-contract Bridge23 is ERC20Capped, ERC20Votes, Ownable {
+contract ERC20NOATest is ERC20Capped, ERC20Votes, Ownable {
     constructor(
         string memory name,
         string memory symbol,
