@@ -3,24 +3,29 @@ pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 import '../../identity/INameService.sol';
 import '../../identity/NameOwnedAccount.sol';
 import './IERC20NOA.sol';
 
-contract ERC20NOA is IERC20NOA, NameOwnedAccount, ERC20 {
+contract ERC20NOA is IERC20NOA, NameOwnedAccount, ERC165, ERC20 {
     constructor(
         string memory name,
         string memory symbol
     ) ERC20(name, symbol) { }
 
     function transferFromName(
-        bytes memory from,
+        bytes memory spender,
+        address from,
         address to,
         uint256 amount
     ) public virtual override returns(bool) {
-        address fromNOA = _authenticate(from);
-        _transfer(fromNOA, to, amount);
+        address spenderNOA = _authenticate(spender);
+        if (from != spenderNOA) {
+            _spendAllowance(from, spenderNOA, amount);
+        }
+        _transfer(from, to, amount);
         return true;
     }
 
@@ -59,5 +64,13 @@ contract ERC20NOA is IERC20NOA, NameOwnedAccount, ERC20 {
             _approve(ownerNOA, spender, currentAllowance - subtractedValue);
         }
         return true;
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC165, IERC165) returns(bool) {
+        return
+            interfaceId == type(IERC20NOA).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

@@ -3,11 +3,13 @@ pragma solidity 0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import '../../identity/INameOwnedAccount.sol';
 
-interface IERC20NOA is INameOwnedAccount, IERC20 {
+interface IERC20NOA is INameOwnedAccount, IERC20, IERC165 {
     function transferFromName(
-        bytes memory from,
+        bytes memory operator,
+        address from,
         address to,
         uint256 amount
     ) external returns(bool);

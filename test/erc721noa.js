@@ -64,43 +64,48 @@ describe("NOA", function () {
     it("safeTransferFromName", async function() {
         const alice = genName('alice', cns.address);
         await cns.connect(admin).setOwner(genNode('alice'), test.address);
+        const bob = genName('bob', cns.address);
         await erc721noa.connect(admin).mint(genAddress(alice), 1);
+        await erc721noa.connect(admin).mint(genAddress(alice), 2);
+        await erc721noa.connect(admin).mint(genAddress(alice), 3);
 
+        // Case 1: operator is not authorized
         await expect(
             erc721noa.connect(admin)[
-                'safeTransferFromName(bytes,address,uint256)'
-            ](alice, admin.address, 1)
+                'safeTransferFromName(bytes,address,address,uint256)'
+            ](alice, genAddress(alice), admin.address, 1)
         ).to.be.revertedWith(
             "NameOwnedAccount: caller is not owner"
         );
 
+        // Case 2: operator is owner
         await expect(
             erc721noa.connect(test)[
-                'safeTransferFromName(bytes,address,uint256)'
-            ](alice, admin.address, 1)
+                'safeTransferFromName(bytes,address,address,uint256)'
+            ](alice, genAddress(alice), admin.address, 1)
         ).to.emit(erc721noa, 'Transfer').withArgs(
             genAddress(alice), admin.address, 1
         );
-    });
 
-    it("approveFromName", async function() {
-        const alice = genName('alice', cns.address);
-        await cns.connect(admin).setOwner(genNode('alice'), test.address);
-        await erc721noa.connect(admin).mint(genAddress(alice), 1);
-
+        // Case 3: operator is approved for all
+        await erc721noa.connect(test).setApprovalForAllFromName(alice, genAddress(bob), true)
         await expect(
-            erc721noa.connect(admin).approveFromName(alice, admin.address, 1)
-        ).to.be.revertedWith(
-            "NameOwnedAccount: caller is not owner"
+            erc721noa.connect(admin)[
+                'safeTransferFromName(bytes,address,address,uint256)'
+            ](bob, genAddress(alice), admin.address, 2)
+        ).to.emit(erc721noa, 'Transfer').withArgs(
+            genAddress(alice), admin.address, 2
         );
 
+        // Case 4: operator is approved
+        await erc721noa.connect(test).approveFromName(alice, genAddress(bob), 3)
         await expect(
-            erc721noa.connect(test).approveFromName(alice, admin.address, 1)
-        ).to.emit(erc721noa, 'Approval').withArgs(
-            genAddress(alice), admin.address, 1
+            erc721noa.connect(admin)[
+                'safeTransferFromName(bytes,address,address,uint256)'
+            ](bob, genAddress(alice), admin.address, 3)
+        ).to.emit(erc721noa, 'Transfer').withArgs(
+            genAddress(alice), admin.address, 3
         );
-
-        expect(await erc721noa.getApproved(1)).to.equal(admin.address);
     });
 
     it("setApprovalForAllFromName", async function() {
@@ -123,5 +128,36 @@ describe("NOA", function () {
         expect(
             await erc721noa.isApprovedForAll(genAddress(alice), admin.address)
         ).to.be.true;
+    });
+
+    it("approveFromName", async function() {
+        const alice = genName('alice', cns.address);
+        await cns.connect(admin).setOwner(genNode('alice'), test.address);
+        await erc721noa.connect(admin).mint(genAddress(alice), 1);
+        await erc721noa.connect(admin).mint(genAddress(alice), 2);
+
+        await expect(
+            erc721noa.connect(admin).approveFromName(alice, admin.address, 1)
+        ).to.be.revertedWith(
+            "NameOwnedAccount: caller is not owner"
+        );
+
+        await expect(
+            erc721noa.connect(test).approveFromName(alice, admin.address, 1)
+        ).to.emit(erc721noa, 'Approval').withArgs(
+            genAddress(alice), admin.address, 1
+        );
+
+        expect(await erc721noa.getApproved(1)).to.equal(admin.address);
+
+        // owner is authorized operator
+        const bob = genName('bob', cns.address);
+        await erc721noa.connect(test).setApprovalForAllFromName(alice, genAddress(bob), true)
+
+        await expect(
+            erc721noa.connect(admin).approveFromName(bob, admin.address, 2)
+        ).to.emit(erc721noa, 'Approval').withArgs(
+            genAddress(alice), admin.address, 2
+        );
     });
 });

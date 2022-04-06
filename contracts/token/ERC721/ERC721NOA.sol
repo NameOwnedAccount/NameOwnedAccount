@@ -15,21 +15,27 @@ contract ERC721NOA is IERC721NOA, NameOwnedAccount, ERC721 {
     ) ERC721(name, symbol) { }
 
     function safeTransferFromName(
-        bytes memory from,
+        bytes memory operator,
+        address from,
         address to,
         uint256 tokenId,
         bytes memory data
     ) public virtual override {
-        address fromNOA = _authenticate(from);
-        _safeTransfer(fromNOA, to, tokenId, data);
+        address operatorNOA = _authenticate(operator);
+        require(
+            _isApprovedOrOwner(operatorNOA, tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+        _safeTransfer(from, to, tokenId, data);
     }
 
     function safeTransferFromName(
-        bytes memory from,
+        bytes memory operator,
+        address from,
         address to,
         uint256 tokenId
     ) public virtual override {
-        safeTransferFromName(from, to, tokenId, '');
+        safeTransferFromName(operator, from, to, tokenId, '');
     }
 
     function approveFromName(
@@ -55,5 +61,13 @@ contract ERC721NOA is IERC721NOA, NameOwnedAccount, ERC721 {
     ) public virtual override {
         address fromNOA = _authenticate(owner);
         _setApprovalForAll(fromNOA, operator, approved);
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, IERC165) returns(bool) {
+        return
+            interfaceId == type(IERC721NOA).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

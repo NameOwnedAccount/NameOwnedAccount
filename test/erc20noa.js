@@ -62,27 +62,7 @@ describe("NOA", function () {
         expect(await erc20noa.decimals()).to.equal(18);
     });
 
-    it("transferFromName", async function() {
-        const alice = genName('alice', cns.address);
-        await cns.connect(admin).setOwner(genNode('alice'), test.address);
-
-        // mint
-        await erc20noa.connect(admin).mint(genAddress(alice), 10000);
-
-        // transfer from name failed
-        await expect(
-            erc20noa.connect(admin).transferFromName(alice, test.address, 5000)
-        ).to.be.revertedWith("NameOwnedAccount: caller is not owner");
-
-        // transfer from name success
-        await expect(
-            erc20noa.connect(test).transferFromName(alice, test.address, 5000)
-        ).to.emit(erc20noa, 'Transfer').withArgs(
-            genAddress(alice), test.address, 5000
-        );
-    });
-
-    it("approveName", async function() {
+    it("approve", async function() {
         const alice = genName('alice', cns.address);
         await cns.connect(admin).setOwner(genNode('alice'), test.address);
 
@@ -124,6 +104,63 @@ describe("NOA", function () {
             erc20noa.connect(test).increaseAllowanceFromName(alice, test.address, 3000)
         ).to.emit(erc20noa, 'Approval').withArgs(
             genAddress(alice), test.address, 7000
+        );
+
+        // approve from name to name
+        const bob = genName('bob', cns.address);
+        await expect(
+            erc20noa.connect(test).approveFromName(alice, genAddress(bob), 10000)
+        ).to.emit(erc20noa, 'Approval').withArgs(
+            genAddress(alice), genAddress(bob), 10000
+        );
+
+        // decrease allowance from name to name
+        await expect(
+            erc20noa.connect(test).decreaseAllowanceFromName(alice, genAddress(bob), 6000)
+        ).to.emit(erc20noa, 'Approval').withArgs(
+            genAddress(alice), genAddress(bob), 4000
+        );
+
+        // increase allowance from name to name
+        await expect(
+            erc20noa.connect(test).increaseAllowanceFromName(alice, genAddress(bob), 3000)
+        ).to.emit(erc20noa, 'Approval').withArgs(
+            genAddress(alice), genAddress(bob), 7000
+        );
+    });
+
+    it("transferFromName", async function() {
+        const alice = genName('alice', cns.address);
+        await cns.connect(admin).setOwner(genNode('alice'), test.address);
+
+        // mint
+        await erc20noa.connect(admin).mint(genAddress(alice), 10000);
+
+        // transfer from name failed
+        await expect(
+            erc20noa.connect(admin).transferFromName(alice, genAddress(alice), test.address, 5000)
+        ).to.be.revertedWith("NameOwnedAccount: caller is not owner");
+
+        // transfer from name success
+        await expect(
+            erc20noa.connect(test).transferFromName(alice, genAddress(alice), test.address, 5000)
+        ).to.emit(erc20noa, 'Transfer').withArgs(
+            genAddress(alice), test.address, 5000
+        );
+
+        // approve from name to name
+        const bob = genName('bob', cns.address);
+        await erc20noa.connect(test).approveFromName(alice, genAddress(bob), 10000);
+
+        // transfer from name with name as operator
+        await expect(
+            erc20noa.connect(admin).transferFromName(bob, genAddress(alice), test.address, 100000)
+        ).to.be.revertedWith("ERC20: insufficient allowance");
+
+        await expect(
+            erc20noa.connect(admin).transferFromName(bob, genAddress(alice), test.address, 5000)
+        ).to.emit(erc20noa, 'Transfer').withArgs(
+            genAddress(alice), test.address, 5000
         );
     });
 });
