@@ -55,12 +55,12 @@ contract ERC721NOA is IERC721NOA, NameOwnedAccount, ERC721 {
     }
 
     function setApprovalForAllFromName(
-        bytes memory owner,
-        address operator,
+        bytes memory from,
+        address to,
         bool approved
     ) public virtual override {
-        address fromNOA = _authenticate(owner);
-        _setApprovalForAll(fromNOA, operator, approved);
+        address fromNOA = _authenticate(from);
+        _setApprovalForAll(fromNOA, to, approved);
     }
 
     function supportsInterface(

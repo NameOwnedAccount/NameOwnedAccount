@@ -15,9 +15,9 @@ interface IERC20NOA is INameOwnedAccount, IERC20, IERC165 {
     ) external returns(bool);
 
     function approveFromName(
-        bytes memory _owner,
-        address _spender,
-        uint256 _value
+        bytes memory owner,
+        address spender,
+        uint256 amount
     ) external returns(bool);
 
     function increaseAllowanceFromName(
